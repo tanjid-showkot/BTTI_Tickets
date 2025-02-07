@@ -8,6 +8,7 @@ export const Context = ({ children }) => {
   const [token, setToken] = useState(() => {
     localStorage.getItem("token") || null;
   });
+
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,15 +49,31 @@ export const Context = ({ children }) => {
     localStorage.removeItem("token");
   };
 
-  useEffect(() => {
-    async () => {
-      if (token) {
-        setUser(await userVerify(token));
+  const checkAuthState = async () => {
+    setLoading(true);
+    try {
+      const storeToken = localStorage.getItem("token");
+      if (storeToken) {
+        await VerifyToken(storeToken)
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data.user);
+            setUser(data.user);
+          });
+      } else {
+        setUser(null);
       }
+    } catch (error) {
+      console.error("Error checking auth state:", error);
+      setUser(null);
+    }
+    setLoading(false);
+  };
 
-      setLoading(false);
-    };
-  }, [token]);
+  // 🔥 Run this when the app loads to check if user is already logged in
+  useEffect(() => {
+    checkAuthState();
+  }, []);
 
   const contextInfo = {
     token,

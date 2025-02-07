@@ -1,27 +1,22 @@
 /** @format */
 
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 
 import AuthContext from "../Context/Context";
-import { useNavigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 
 const PrivateRoute = ({ children }) => {
-  const { token } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { user, loading } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/", { replace: true });
-    }
-  }, [token, navigate]);
+  const location = useLocation();
 
   // Only return the children if the token exists
-  if (token) {
+  if (loading) return <p>Loading......</p>;
+  if (user) {
     return children;
   }
 
-  // Optionally, return null or a loader while the redirection occurs
-  return null;
+  return <Navigate to='/' state={location.pathname} replace={true} />;
 };
 
 export default PrivateRoute;

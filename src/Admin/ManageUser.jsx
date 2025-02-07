@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { Label } from "../Components/UI/Label";
 import { Input } from "../Components/UI/Input";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,13 +14,18 @@ import {
   DialogTrigger,
 } from "../Components/UI/Dialog";
 import { Button } from "../Components/UI/Button";
+import { addUser } from "../Api/Api";
+import AuthContext from "../Context/Context";
 
 const ManageUser = () => {
   const { register, handleSubmit, reset } = useForm();
   const [error, setError] = useState("");
+  const { token } = useContext(AuthContext);
+
   const handleCreateUser = async (data) => {
     try {
       console.log(data);
+      await addUser(token, data);
       setError("");
       reset();
     } catch (error) {
@@ -138,16 +143,16 @@ const ManageUser = () => {
                 <Label htmlFor='userType'>User Type</Label>
 
                 <select
-                  className='select w-full validator'
-                  {...register("userType")}
+                  className='select capitalize w-full validator'
+                  {...register("user_type")}
                   id='userType'
                   required>
                   <option disabled selected value=''>
                     Choose:
                   </option>
-                  <option>Admin</option>
-                  <option>Accounts</option>
-                  <option>Validator</option>
+                  <option className=' capitalize'>admin</option>
+                  <option className=' capitalize'>accounts</option>
+                  <option className=' capitalize'>validator</option>
                 </select>
               </div>
               <div className='grid gap-2'>
@@ -169,7 +174,7 @@ const ManageUser = () => {
                   id='confirmPassword'
                   type='password'
                   required
-                  {...register("ConfirmPassword")}
+                  {...register("confirm_password")}
                 />
               </div>
               {error && <div className='text-error text-center'>{error}</div>}

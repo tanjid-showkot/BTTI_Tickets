@@ -38,8 +38,26 @@ export const VerifyToken = async (token) => {
                 Authorization: `Token ${token}`,
             },
         });
-        const endTime = performance.now(); // End measuring
+        const endTime = performance.now();
         console.log(`API Response Time: ${(endTime - startTime).toFixed(2)}ms`);
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+
+export const addUser = async (token, data) => {
+    try {
+        const response = await fetch(`${url}account/users/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
         return handleResponse(response);
     } catch (error) {
         console.error("API Error:", error.message);
