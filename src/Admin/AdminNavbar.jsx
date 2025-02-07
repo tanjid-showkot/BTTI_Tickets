@@ -78,7 +78,7 @@ const AdminNavbar = () => {
                 <NavLink to='/admin/manageUser'>Users</NavLink>
               </li>
               <li>
-                <a>Logout</a>
+                <a onClick={handleLogout}>Logout</a>
               </li>
             </ul>
           </div>

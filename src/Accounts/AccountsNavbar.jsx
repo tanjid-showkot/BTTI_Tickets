@@ -78,7 +78,7 @@ const AccountsNavbar = () => {
                 <NavLink to='/accounts/accountsProfile'>Profile</NavLink>
               </li>
               <li>
-                <a>Logout</a>
+                <a onClick={handleLogout}>Logout</a>
               </li>
             </ul>
           </div>
