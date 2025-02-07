@@ -1,5 +1,8 @@
 /** @format */
 
+import { Input } from "../Components/UI/Input";
+import { Label } from "../Components/UI/label";
+
 const Home = () => {
   return (
     <div>
@@ -20,14 +23,23 @@ const Home = () => {
 
       <dialog id='my_modal_5' className='modal modal-bottom sm:modal-middle'>
         <div className='modal-box'>
-          <h3 className='font-bold text-lg'>Hello!</h3>
-          <p className='py-4'>
-            Press ESC key or click the button below to close
-          </p>
+          <h3 className='font-bold text-lg'>Print Ticket</h3>
+          <div className='grid gap-4 py-4'>
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <Label htmlFor='name' className='text-right'>
+                Roll No:
+              </Label>
+              <Input
+                id='roll_no'
+                placeholder='Enter your Roll No'
+                className='col-span-3'
+              />
+            </div>
+          </div>
           <div className='modal-action'>
             <form method='dialog'>
               {/* if there is a button in form, it will close the modal */}
-              <button className='btn'>Close</button>
+              <button className='btn btn-accent'>Print</button>
             </form>
           </div>
         </div>
