@@ -53,9 +53,10 @@ export const Context = ({ children }) => {
       if (token) {
         setUser(await userVerify(token));
       }
+
       setLoading(false);
     };
-  }, [token, loading]);
+  }, [token]);
 
   const contextInfo = {
     token,

@@ -1,16 +1,24 @@
 /** @format */
 
 import { NavLink } from "react-router";
+import logo from "/BRTC Logo.png";
 
 const AdminNavbar = () => {
   return (
     <div>
       <div className='navbar bg-base-100 shadow-sm'>
-        <div className='navbar-start'>
-          <a className='btn btn-ghost text-xl'>BTTI</a>
+        <div className='navbar-start w-[90%]    '>
+          <p className=' font-black flex gap-2 items-center text-xl '>
+            <span>
+              <img src={logo} className='w-8' alt='' />
+            </span>{" "}
+            <span className='truncate overflow-hidden w-[80%]    text-ellipsis'>
+              বিআরটিসি তেজগাঁও ট্রেনিং ইন্সটিটিউট
+            </span>
+          </p>
         </div>
-        <div className='navbar-center hidden lg:flex'></div>
-        <div className='navbar-end'>
+
+        <div className='navbar-end w-[20%] '>
           <ul className='menu menu-horizontal px-1 font-bold lg:flex hidden '>
             <li>
               <NavLink to='/admin'>Dashboard</NavLink>
