@@ -9,7 +9,7 @@ import {
 } from "./UI/Card";
 import { cn } from "../lib/utils";
 import { Input } from "./UI/Input";
-import { Label } from "./UI/label";
+import { Label } from "./UI/Label";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
