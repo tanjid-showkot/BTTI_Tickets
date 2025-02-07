@@ -10,26 +10,39 @@ import {
 import { cn } from "../lib/utils";
 import { Input } from "./UI/Input";
 import { Label } from "./UI/Label";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import AuthContext from "../Context/Context";
+import { useNavigate } from "react-router";
 
 export function LoginForm({ className, ...props }) {
   const [error, setError] = useState("");
+  const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const handleLogin = async (data) => {
-    try {
-      console.log(data);
-      setError("");
-      reset();
-    } catch (error) {
-      setError(error.message);
-    }
+  const { token, user, UserLogin } = useContext(AuthContext);
+
+  const handleLogin = (data) => {
+    console.log(data);
+    setError(null);
+    UserLogin(data);
+    reset();
   };
+
+  useEffect(() => {
+    if (user && user.user_type) {
+      if (user.user_type === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/accounts");
+      }
+    }
+  }, [user]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className='text-2xl font-bold '>Tanjid</CardTitle>
+          <CardTitle className='text-2xl font-bold '>Login</CardTitle>
           <CardDescription>
             Enter your email and password to login to your account
           </CardDescription>

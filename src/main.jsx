@@ -5,6 +5,7 @@ import "./index.css";
 import webRouter from "./Router/Router.jsx";
 import { RouterProvider } from "react-router";
 import { registerSW } from "virtual:pwa-register";
+import { Context } from "./Context/Context.jsx";
 
 const updateSW = registerSW({
   onNeedRefresh() {
@@ -15,5 +16,7 @@ const updateSW = registerSW({
 });
 
 createRoot(document.getElementById("root")).render(
-  <RouterProvider router={webRouter} />
+  <Context>
+    <RouterProvider router={webRouter} />
+  </Context>
 );

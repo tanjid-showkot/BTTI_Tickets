@@ -12,6 +12,7 @@ import AdminDashboard from "../Admin/AdminDashboard";
 import RefundApproval from "../Admin/RefundApproval";
 import ManageTicket from "../Admin/ManageTicket";
 import ManageUser from "../Admin/ManageUser";
+import PrivateRoute from "./PrivateRoute";
 
 let webRouter = createBrowserRouter([
   {
@@ -20,7 +21,11 @@ let webRouter = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <AdminLayout></AdminLayout>,
+    element: (
+      <PrivateRoute>
+        <AdminLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "",
@@ -42,7 +47,11 @@ let webRouter = createBrowserRouter([
   },
   {
     path: "/accounts",
-    element: <Layout></Layout>,
+    element: (
+      <PrivateRoute>
+        <Layout />
+      </PrivateRoute>
+    ),
     children: [
       {
         path: "",
