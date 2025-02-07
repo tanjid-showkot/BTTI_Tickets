@@ -1,7 +1,7 @@
 /** @format */
 
 import { Input } from "../Components/UI/Input";
-import { Label } from "../Components/UI/label";
+import { Label } from "../Components/UI/Label";
 
 const Home = () => {
   return (
