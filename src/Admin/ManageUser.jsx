@@ -1,7 +1,7 @@
 /** @format */
 
 import { useForm } from "react-hook-form";
-import { Label } from "../Components/UI/label";
+import { Label } from "../Components/UI/Label";
 import { Input } from "../Components/UI/Input";
 import { useState } from "react";
 import {
