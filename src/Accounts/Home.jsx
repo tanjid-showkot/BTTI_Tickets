@@ -13,7 +13,7 @@ const Home = () => {
     try {
       const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
-        // Adjust service UUID as needed
+        optionalServices: ["49535343-fe7d-4ae5-8fa9-9fafd205e455"],
       });
 
       console.log("Printer device selected:", device.name);
