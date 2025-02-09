@@ -94,100 +94,7 @@ const Home = () => {
   //     console.error("Error printing data:", error);
   //   }
   // }
-  // function generatePrintCommand(
-  //   charset,
-  //   text,
-  //   changeFont,
-  //   size,
-  //   bold,
-  //   underline,
-  //   feedline
-  // ) {
-  //   let command = [];
 
-  //   // Set character encoding
-  //   command.push(0x1b); // ESC
-  //   command.push(0x74); // Select character set
-  //   command.push(charset.charCodeAt(0x1d)); // Charset selection (assuming first character)
-
-  //   // Configure font and style
-  //   command.push(0x1b); // ESC
-  //   command.push(0x21); // Select print mode
-  //   let font =
-  //     (changeFont ? 1 : 0) +
-  //     (size << 2) +
-  //     (bold ? 8 : 0) +
-  //     (underline ? 128 : 0);
-  //   command.push(font);
-
-  //   // Convert text to bytes and add to command
-  //   let textBytes = new TextEncoder().encode(text);
-  //   command.push(...textBytes);
-
-  //   // Feed line after printing
-  //   if (feedline) {
-  //     command.push(0x0a); // LF (Line Feed)
-  //     command.push(0x0d); // CR (Carriage Return)
-  //   }
-
-  //   return new Uint8Array(command);
-  // }
-
-  // Example Usage:
-
-  // async function printBangla(characteristicUUID, data) {
-  //   try {
-  //     if (!server || !server.connected) {
-  //       console.error("GATT server is not connected yet.");
-  //       return;
-  //     }
-
-  //     const service = await server.getPrimaryService(
-  //       "49535343-fe7d-4ae5-8fa9-9fafd205e455"
-  //     );
-  //     const characteristic = await service.getCharacteristic(
-  //       characteristicUUID
-  //     );
-  //     // Set printer to use CP874 character set
-  //     const setWPC1252 = new Uint8Array([0x1b, 0x74, 0x16]); // 0x1D is for CP874
-  //     await characteristic.writeValue(setWPC1252);
-
-  //     // Encode Bangla text using CP874
-  //     const encoder = new TextEncoder(); // Encoding to CP874
-  //     const encodedText = encoder.encode(data);
-
-  //     // Send the encoded text
-  //     await characteristic.writeValue(encodedText);
-
-  //     // Feed extra paper after printing
-  //     // const feed = new Uint8Array([0x1b, 0x64, 0x05]); // ESC d 5 (feed 5 lines)
-  //     // await characteristic.writeValue(feed);
-  //     // const printCommand = generatePrintCommand(
-  //     //   "T",
-  //     //   "তানজিদ",
-  //     //   true,
-  //     //   1,
-  //     //   true,
-  //     //   false,
-  //     //   true
-  //     // );
-  //     // await characteristic.writeValue(printCommand);
-
-  //     // 1️⃣ Set Printer Code Page to CP874 (Thai, supports Bangla)
-  //     // const setCp874 = new Uint8Array([0x1b, 0x74, 0x13]); // CP874
-  //     // await characteristic.writeValue(setCp874);
-  //     // console.log("✔ Code page set to CP874");
-
-  //     // // 2️⃣ Convert Bangla Text to CP874 Bytes (Manually)
-  //     // const encodedText = new TextEncoder().encode(banglaText);
-
-  //     // // 3️⃣ Send Bangla Text to Printer
-  //     // await characteristic.writeValue(encodedText, setCp874);
-  //     console.log("✅ Bangla text printed successfully!");
-  //   } catch (error) {
-  //     console.error("❌ Error printing Bangla text:", error);
-  //   }
-  // }
   useEffect(() => {
     getTickets();
   }, []);
@@ -229,9 +136,6 @@ const Home = () => {
     }
   }
 
-  // Usage:
-  // printBangla("49535343-1e4d-4ae5-8fa9-9fafd205e455", "তানজিদ");
-
   const ESC = String.fromCharCode(0x1b); // ESC control character
   const BOLD_ON = `${ESC}E${String.fromCharCode(0x01)}`; // Bold on
   const BOLD_OFF = `${ESC}E${String.fromCharCode(0x00)}`; // Bold off
@@ -248,11 +152,9 @@ const Home = () => {
   const RESET_SIZE = `${ESC}!${String.fromCharCode(0x00)}`; // Reset to normal
   const FEED_PAPER = `${ESC}d${String.fromCharCode(0x01)}`; // Feed paper by 1 line
   const NEW_LINE = `\n`;
-  const now = new Date();
+
   const formattedDate = moment().format("DD/MM/YYYY"); // e.g., "2/9/2025"
   const formattedTime = moment().format("h:mm a");
-
-  // Constructing the formatted print data
 
   const handleTicket = async (data) => {
     console.log(data);
@@ -268,7 +170,7 @@ const Home = () => {
         const text_data =
           `${ALIGN_CENTER}${BOLD_ON}${FONT_S}${data.header}${BOLD_OFF}${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}${data.title}${BOLD_OFF}${NEW_LINE}` +
-          `${FONT_S}Date: ${formattedDate} Time:${formattedTime}  ${NEW_LINE}` +
+          // `${FONT_S}Date: ${formattedDate} Time:${formattedTime}  ${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}${data.ticket_serial}${BOLD_OFF} ${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}Test Fee: ${Number(
             data.amount
