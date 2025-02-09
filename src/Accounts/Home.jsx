@@ -267,7 +267,7 @@ const Home = () => {
         const text_data =
           `${ALIGN_CENTER}${BOLD_ON}${FONT_S}${data.header}${BOLD_OFF}${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}${data.title}${BOLD_OFF}${NEW_LINE}` +
-          `${FONT_S}Date: ${formattedDate} Time:${formattedTime} ${NEW_LINE}` +
+          `${FONT_S}Date: ${formattedDate} Time: ${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}FT-A72${BOLD_OFF} ${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}Test Fee: ${Number(
             data.amount
