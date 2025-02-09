@@ -6,6 +6,7 @@ import { Label } from "../Components/UI/Label";
 import AuthContext from "../Context/Context";
 import { getTicketForAccount, sellTicket } from "../Api/Api";
 import { useForm } from "react-hook-form";
+import moment from "moment/moment";
 
 const Home = () => {
   const { server, characteristics, token } = useContext(AuthContext);
@@ -248,8 +249,8 @@ const Home = () => {
   const FEED_PAPER = `${ESC}d${String.fromCharCode(0x01)}`; // Feed paper by 1 line
   const NEW_LINE = `\n`;
   const now = new Date();
-  const formattedDate = now.toLocaleDateString(); // e.g., "2/9/2025"
-  const formattedTime = now.toLocaleTimeString(); // e.g., "10:30 AM"
+  const formattedDate = moment().format("DD/MM/YYYY"); // e.g., "2/9/2025"
+  const formattedTime = moment().format("h:mm a");
 
   // Constructing the formatted print data
 
@@ -267,8 +268,8 @@ const Home = () => {
         const text_data =
           `${ALIGN_CENTER}${BOLD_ON}${FONT_S}${data.header}${BOLD_OFF}${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}${data.title}${BOLD_OFF}${NEW_LINE}` +
-          `${FONT_S}Date: ${formattedDate} Time: ${NEW_LINE}` +
-          `${BOLD_ON}${FONT_M}FT-A72${BOLD_OFF} ${NEW_LINE}` +
+          `${FONT_S}Date: ${formattedDate} Time:${formattedTime}  ${NEW_LINE}` +
+          `${BOLD_ON}${FONT_M}${data.ticket_serial}${BOLD_OFF} ${NEW_LINE}` +
           `${BOLD_ON}${FONT_M}Test Fee: ${Number(
             data.amount
           )} TK ${BOLD_OFF}${NEW_LINE}` +
