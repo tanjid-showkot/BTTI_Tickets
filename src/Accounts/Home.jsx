@@ -1,72 +1,208 @@
 /** @format */
 
+import { useContext, useEffect, useState } from "react";
 import { Input } from "../Components/UI/Input";
 import { Label } from "../Components/UI/Label";
+import AuthContext from "../Context/Context";
+import { getTicketForAccount, sellTicket } from "../Api/Api";
+import { useForm } from "react-hook-form";
 
 const Home = () => {
+  const { server, characteristics, token } = useContext(AuthContext);
+  const [tickets, setTickets] = useState([]);
+  const { register, handleSubmit, reset } = useForm();
+  const [ticketId, setTicketId] = useState(null);
+
   const uui =
     "	00001800-0000-1000-8000-00805f9b34fb, 00001801-0000-1000-8000-00805f9b34fb, 0000180a-0000-1000-8000-00805f9b34fb, 000018f0-0000-1000-8000-00805f9b34fb, 49535343-fe7d-4ae5-8fa9-9fafd205e455, e7810a71-73ae-499d-8c15-faa9aef0c3f2";
-  let server; // Declare the server globally to access it across functions
-
-  // Step 1: Connect to Printer and Get the GATT Server
-  async function connectToPrinter() {
-    try {
-      const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: ["49535343-fe7d-4ae5-8fa9-9fafd205e455"],
-      });
-
-      console.log("Printer device selected:", device.name);
-
-      // Step 2: Connect to the GATT server
-      server = await device.gatt.connect(); // Store the GATT server in the global variable
-      console.log("Connected to GATT server:", server);
-
-      // Step 3: Get Primary Services (Confirm connection first)
-      if (server && server.connected) {
-        const services = await server.getPrimaryServices();
-        console.log("Services found:", services);
-
-        return services;
-      } else {
-        console.error("Server is not connected.");
-      }
-    } catch (error) {
-      console.error("Error connecting to printer:", error);
-    }
-  }
-
-  // Step 2: Retrieve Characteristics from a Specific Service
-  async function getCharacteristics(serviceUUID) {
-    try {
-      // Check if the GATT server is connected before trying to access services
-      if (!server || !server.connected) {
-        console.error("GATT server is not connected yet.");
-        return;
-      }
-
-      console.log("Attempting to get primary service using UUID:", serviceUUID);
-
-      // Get the specific primary service using the serviceUUID
-      const service = await server.getPrimaryService(serviceUUID);
-      console.log("Service found:", service);
-
-      // Get characteristics of the service
-      const characteristics = await service.getCharacteristics();
-      console.log("Characteristics found:", characteristics);
-
-      // Iterate through characteristics to find the one you need
-      for (const characteristic of characteristics) {
-        console.log(`Characteristic UUID: ${characteristic.uuid}`);
-        // You can send print data to the relevant characteristic here
-      }
-    } catch (error) {
-      console.error("Error finding characteristics:", error);
-    }
-  }
 
   // Step 3: Send Data to Printer (write data to characteristic)
-  async function printData(characteristicUUID, data) {
+  // async function printData(characteristicUUID, data) {
+  //   try {
+  //     if (!server || !server.connected) {
+  //       console.error("GATT server is not connected yet.");
+  //       return;
+  //     }
+
+  //     const service = await server.getPrimaryService(
+  //       "49535343-fe7d-4ae5-8fa9-9fafd205e455"
+  //     ); // Replace with correct UUID
+  //     const characteristic = await service.getCharacteristic(
+  //       characteristicUUID
+  //     );
+  //     // let encoder = new ReceiptPrinterEncoder({
+  //     //   codepageMapping: {
+  //     //     cp437: 0x00,
+  //     //     cp850: 0x02,
+  //     //     cp860: 0x03,
+  //     //     cp863: 0x04,
+  //     //     cp865: 0x05,
+  //     //     cp851: 0x0b,
+  //     //     cp847: 0x13,
+  //     //   },
+  //     // });
+  //     // let encoder = new ReceiptPrinterEncoder({
+  //     //   codepageCandidates: [
+  //     //     "cp437",
+  //     //     "cp858",
+  //     //     "cp860",
+  //     //     "cp861",
+  //     //     "cp863",
+  //     //     "cp865",
+  //     //     "cp852",
+  //     //     "cp857",
+  //     //     "cp855",
+  //     //     "cp866",
+  //     //     "cp869",
+  //     //     "cp847",
+  //     //   ],
+  //     // });
+
+  //     // let result = encoder
+  //     //   .codepage("auto")
+  //     //   .line("The is the first line")
+  //     //   .line("And this is the second")
+  //     //   .line("তানজিদ")
+  //     //   .encode();
+  //     // let result = encoder
+  //     //   .codepage("auto")
+  //     //   .text("Iñtërnâtiônàlizætiøn")
+  //     //   .line("διεθνοποίηση")
+  //     //   .line("интернационализация")
+  //     //   .line("তানজিদ")
+  //     //   .encode();
+  //     const setCp874 = new Uint8Array([0x1b, 0x74, 0x1d]); // Try CP874 (Thai)
+  //     await characteristic.writeValue(setCp874);
+
+  //     // const printData = new Uint8Array(result);
+  //     // const setUtf8Mode = new Uint8Array([0x1b, 0x74, 0x20]); // Adjust based on your printer
+  //     // const setCp874 = new Uint8Array([0x1b, 0x74, 0x1d]); // Try CP874 (Thai)
+  //     // await characteristic.writeValue(setCp874);
+
+  //     // Encode Bangla text to UTF-8
+  //     // const encodedData = new TextEncoder().encode(data);
+
+  //     // Write commands
+  //     // await sendInChunks(characteristic, result);
+  //     await characteristic.writeValue("তানজিদ।");
+  //     console.log("UTF-8 Code Page Set!");
+
+  //     // await characteristic.writeValue(encodedData);
+  //     console.log("✅ Print command sent!");
+  //   } catch (error) {
+  //     console.error("Error printing data:", error);
+  //   }
+  // }
+  // function generatePrintCommand(
+  //   charset,
+  //   text,
+  //   changeFont,
+  //   size,
+  //   bold,
+  //   underline,
+  //   feedline
+  // ) {
+  //   let command = [];
+
+  //   // Set character encoding
+  //   command.push(0x1b); // ESC
+  //   command.push(0x74); // Select character set
+  //   command.push(charset.charCodeAt(0x1d)); // Charset selection (assuming first character)
+
+  //   // Configure font and style
+  //   command.push(0x1b); // ESC
+  //   command.push(0x21); // Select print mode
+  //   let font =
+  //     (changeFont ? 1 : 0) +
+  //     (size << 2) +
+  //     (bold ? 8 : 0) +
+  //     (underline ? 128 : 0);
+  //   command.push(font);
+
+  //   // Convert text to bytes and add to command
+  //   let textBytes = new TextEncoder().encode(text);
+  //   command.push(...textBytes);
+
+  //   // Feed line after printing
+  //   if (feedline) {
+  //     command.push(0x0a); // LF (Line Feed)
+  //     command.push(0x0d); // CR (Carriage Return)
+  //   }
+
+  //   return new Uint8Array(command);
+  // }
+
+  // Example Usage:
+
+  // async function printBangla(characteristicUUID, data) {
+  //   try {
+  //     if (!server || !server.connected) {
+  //       console.error("GATT server is not connected yet.");
+  //       return;
+  //     }
+
+  //     const service = await server.getPrimaryService(
+  //       "49535343-fe7d-4ae5-8fa9-9fafd205e455"
+  //     );
+  //     const characteristic = await service.getCharacteristic(
+  //       characteristicUUID
+  //     );
+  //     // Set printer to use CP874 character set
+  //     const setWPC1252 = new Uint8Array([0x1b, 0x74, 0x16]); // 0x1D is for CP874
+  //     await characteristic.writeValue(setWPC1252);
+
+  //     // Encode Bangla text using CP874
+  //     const encoder = new TextEncoder(); // Encoding to CP874
+  //     const encodedText = encoder.encode(data);
+
+  //     // Send the encoded text
+  //     await characteristic.writeValue(encodedText);
+
+  //     // Feed extra paper after printing
+  //     // const feed = new Uint8Array([0x1b, 0x64, 0x05]); // ESC d 5 (feed 5 lines)
+  //     // await characteristic.writeValue(feed);
+  //     // const printCommand = generatePrintCommand(
+  //     //   "T",
+  //     //   "তানজিদ",
+  //     //   true,
+  //     //   1,
+  //     //   true,
+  //     //   false,
+  //     //   true
+  //     // );
+  //     // await characteristic.writeValue(printCommand);
+
+  //     // 1️⃣ Set Printer Code Page to CP874 (Thai, supports Bangla)
+  //     // const setCp874 = new Uint8Array([0x1b, 0x74, 0x13]); // CP874
+  //     // await characteristic.writeValue(setCp874);
+  //     // console.log("✔ Code page set to CP874");
+
+  //     // // 2️⃣ Convert Bangla Text to CP874 Bytes (Manually)
+  //     // const encodedText = new TextEncoder().encode(banglaText);
+
+  //     // // 3️⃣ Send Bangla Text to Printer
+  //     // await characteristic.writeValue(encodedText, setCp874);
+  //     console.log("✅ Bangla text printed successfully!");
+  //   } catch (error) {
+  //     console.error("❌ Error printing Bangla text:", error);
+  //   }
+  // }
+  useEffect(() => {
+    getTickets();
+  }, []);
+  const getTickets = async () => {
+    try {
+      await getTicketForAccount(token)
+        .then((res) => res.json())
+        .then((data) => {
+          setTickets(data);
+        });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  async function printBanglaWithCharsets(text) {
     try {
       if (!server || !server.connected) {
         console.error("GATT server is not connected yet.");
@@ -75,99 +211,136 @@ const Home = () => {
 
       const service = await server.getPrimaryService(
         "49535343-fe7d-4ae5-8fa9-9fafd205e455"
-      ); // Replace with correct UUID
+      );
       const characteristic = await service.getCharacteristic(
-        characteristicUUID
-      ); // Access the characteristic
-      // Command to select a different font, if necessary
-      const fontSwitchCommand = new Uint8Array([0x1b, 0x4d, 0x01]); // Example ESC command to switch font (adjust as needed)
+        characteristics[1].uuid
+      );
 
-      // Send the font switch command first
-      await characteristic.writeValue(fontSwitchCommand);
-      console.log("Font switched successfully!");
-      const encodedData = new TextEncoder().encode(data); // Encode print data
-      await characteristic.writeValue(encodedData); // Write the data to the characteristic
+      // Encode Bangla text
+      const encodedText = new TextEncoder().encode(text);
+      await characteristic.writeValue(encodedText);
 
-      console.log("✅ Print command sent!");
+      // // Feed paper (optional)
+      // const feed = new Uint8Array([0x1b, 0x64, 0x03]); // ESC d 3 (feed 3 lines)
+      // await characteristic.writeValue(feed);
     } catch (error) {
-      console.error("Error printing data:", error);
+      console.error("Error printing Bangla:", error);
     }
   }
 
+  // Usage:
+  // printBangla("49535343-1e4d-4ae5-8fa9-9fafd205e455", "তানজিদ");
+
   const ESC = String.fromCharCode(0x1b); // ESC control character
-  const boldOn = `${ESC}E${String.fromCharCode(0x01)}`; // Bold on
-  const boldOff = `${ESC}E${String.fromCharCode(0x00)}`; // Bold off
+  const BOLD_ON = `${ESC}E${String.fromCharCode(0x01)}`; // Bold on
+  const BOLD_OFF = `${ESC}E${String.fromCharCode(0x00)}`; // Bold off
+  const ALIGN_CENTER = `${ESC}a${String.fromCharCode(0x01)}`; // Center align
+  // const FONT_m = `${ESC}!${String.fromCharCode(0x00)}`; // Reset font size to default
+  // const FONT_s = `${ESC}!${String.fromCharCode(0x01)}`; // Font size 12
+  // const FONT_l = `${ESC}!${String.fromCharCode(0x11)}`;
+  // const FONT_xl = `${ESC}!${String.fromCharCode(0x22)}`;
+  const FONT_S = `${ESC}M${String.fromCharCode(0x01)}`; // Use Font B (9x17 dots)
+  const FONT_M = `${ESC}M${String.fromCharCode(0x00)}`; // Back to Font A
 
-  // Example data with two lines of space before and after
-  const data = `\n\n${boldOn}This is a bold line with two lines of space before!\n${boldOff}\nরায়হান বিল্লাহ\n\n${boldOn}This is another bold line with space before and after!\n${boldOff}.`;
-  const feedPaper = `${ESC}d${String.fromCharCode(0x05)}`; // Feed 5 lines (0x05 is the number of lines to feed)
+  // **Increase font size (Double Height & Width) only for price**
+  const FONT_XL = `${ESC}!${String.fromCharCode(0x30)}`; // Double width + height
+  const RESET_SIZE = `${ESC}!${String.fromCharCode(0x00)}`; // Reset to normal
+  const FEED_PAPER = `${ESC}d${String.fromCharCode(0x01)}`; // Feed paper by 1 line
+  const NEW_LINE = `\n`;
+  const now = new Date();
+  const formattedDate = now.toLocaleDateString(); // e.g., "2/9/2025"
+  const formattedTime = now.toLocaleTimeString(); // e.g., "10:30 AM"
 
-  // Combine print data and feed command
-  const printDat = data + feedPaper;
+  // Constructing the formatted print data
 
+  const handleTicket = async (data) => {
+    console.log(data);
+    const value = {
+      ticket: ticketId,
+      sold_to: data.sold_to,
+      roll_number: data.roll_number,
+    };
+    await sellTicket(token, value)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        const text_data =
+          `${ALIGN_CENTER}${BOLD_ON}${FONT_S}${data.header}${BOLD_OFF}${NEW_LINE}` +
+          `${BOLD_ON}${FONT_M}${data.title}${BOLD_OFF}${NEW_LINE}` +
+          `${FONT_S}Date: ${formattedDate} Time:${formattedTime} ${NEW_LINE}` +
+          `${BOLD_ON}${FONT_M}FT-A72${BOLD_OFF} ${NEW_LINE}` +
+          `${BOLD_ON}${FONT_M}Test Fee: ${Number(
+            data.amount
+          )} TK ${BOLD_OFF}${NEW_LINE}` +
+          `${FONT_M}Roll No: ${data.roll_number}${NEW_LINE}` +
+          `${FONT_S}Developed By: XELOTEK${NEW_LINE}${NEW_LINE}${NEW_LINE}${NEW_LINE}`;
+        printBanglaWithCharsets(text_data);
+        reset();
+      });
+  };
   return (
     <div>
       <h1 className='text-center font-bold text-xl m-4'>Entry Ticket</h1>
-      <button onClick={connectToPrinter} className='btn btn-primary'>
-        connectToPrinter
-      </button>
-      <button
-        onClick={() =>
-          getCharacteristics("49535343-fe7d-4ae5-8fa9-9fafd205e455")
-        }
-        className='btn btn-primary'>
-        getCharacteristics
-      </button>
-      <button
-        onClick={() =>
-          printData("49535343-8841-43f4-a8d4-ecbe34729bb3", printDat)
-        }
-        className='btn btn-primary'>
-        printData
-      </button>
+
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mx-10 mt-10'>
-        <button
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-          className=' border-2 flex flex-col h-22  bg-white border-primary text-primary  btn hover:bg-primary hover:text-white '>
-          <span className='font-semibold text-xl'>Light And Motorcycle</span>{" "}
-          <span className='font-bold'>300</span>
-        </button>
-        <button
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-          className=' border-2 flex flex-col h-22  bg-white border-primary text-primary  btn hover:bg-primary hover:text-white '>
-          <span className='font-semibold text-xl'>Light </span>{" "}
-          <span className='font-bold'>200</span>
-        </button>
-        <button
-          onClick={() => document.getElementById("my_modal_5").showModal()}
-          className=' border-2 flex flex-col h-22  bg-white border-primary text-primary  btn hover:bg-primary hover:text-white '>
-          <span className='font-semibold text-xl'>Motorcycle</span>{" "}
-          <span className='font-bold'>100</span>
-        </button>
+        {tickets.map((ticket) => (
+          <button
+            onClick={() => {
+              document.getElementById("my_modal_5").showModal();
+              setTicketId(ticket.id);
+            }}
+            className=' border-2 flex flex-col h-22  bg-white border-primary text-primary  btn hover:bg-primary hover:text-white '
+            key={ticket.id}>
+            <span className='font-semibold text-xl'>{ticket.type}</span>{" "}
+            <span className='font-bold'>{Number(ticket.amount)}</span>
+          </button>
+        ))}
       </div>
       {/* Open the modal using document.getElementById('ID').showModal() method */}
 
       <dialog id='my_modal_5' className='modal modal-bottom sm:modal-middle'>
         <div className='modal-box'>
+          <form method='dialog'>
+            {/* if there is a button in form, it will close the modal */}
+            <button
+              id='close_button'
+              className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>
+              ✕
+            </button>
+          </form>
           <h3 className='font-bold text-lg'>Print Ticket</h3>
-          <div className='grid gap-4 py-4'>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='name' className='text-right'>
-                Roll No:
-              </Label>
-              <Input
-                id='roll_no'
-                placeholder='Enter your Roll No'
-                className='col-span-3'
+          <form action='' onSubmit={handleSubmit(handleTicket)}>
+            <div className='grid gap-4 py-4'>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='name' className='text-right'>
+                  Name:
+                </Label>
+                <Input
+                  id='name'
+                  {...register("sold_to")}
+                  placeholder='Enter name'
+                  className='col-span-3'
+                />
+                <Label htmlFor='roll_no' className='text-right'>
+                  Roll No:
+                </Label>
+                <Input
+                  select='true'
+                  id='roll_no'
+                  {...register("roll_number")}
+                  placeholder='Enter roll No'
+                  className='col-span-3'
+                />
+              </div>
+            </div>
+            <div className='flex justify-end'>
+              <input
+                className='btn  btn-accent'
+                value={"Print"}
+                type='submit'
               />
             </div>
-          </div>
-          <div className='modal-action'>
-            <form method='dialog'>
-              {/* if there is a button in form, it will close the modal */}
-              <button className='btn btn-accent'>Print</button>
-            </form>
-          </div>
+          </form>
         </div>
       </dialog>
     </div>
