@@ -177,6 +177,7 @@ const Home = () => {
           )} TK ${BOLD_OFF}${NEW_LINE}` +
           `${FONT_M}Roll No: ${data.roll_number}${NEW_LINE}` +
           `${FONT_S}Developed By: XELOTEK${NEW_LINE}${NEW_LINE}${NEW_LINE}${NEW_LINE}`;
+        console.log(text_data);
         printBanglaWithCharsets(text_data);
         reset();
       });
