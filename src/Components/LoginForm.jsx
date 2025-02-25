@@ -16,15 +16,12 @@ import AuthContext from "../Context/Context";
 import { useNavigate } from "react-router";
 
 export function LoginForm({ className, ...props }) {
-  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const { token, user, UserLogin } = useContext(AuthContext);
+  const { setError, error, user, UserLogin } = useContext(AuthContext);
 
-  const handleLogin = (data) => {
-    console.log(data);
-    setError(null);
-    UserLogin(data);
+  const handleLogin = async (data) => {
+    await UserLogin(data);
     reset();
   };
 
@@ -32,11 +29,9 @@ export function LoginForm({ className, ...props }) {
     if (user && user.user_type) {
       if (user.user_type === "admin") {
         navigate("/admin");
-      } else {
-        navigate("/accounts");
       }
     }
-  }, [user]);
+  }, [user, navigate]);
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -44,7 +39,7 @@ export function LoginForm({ className, ...props }) {
         <CardHeader>
           <CardTitle className='text-2xl font-bold '>Login</CardTitle>
           <CardDescription>
-            Enter your email and password to login to your account
+            Enter your username and password to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,6 +53,7 @@ export function LoginForm({ className, ...props }) {
                   {...register("username")}
                   placeholder='Enter your username'
                   required
+                  onFocus={() => setError(null)}
                 />
               </div>
               <div className='grid gap-2'>
@@ -67,8 +63,10 @@ export function LoginForm({ className, ...props }) {
                 <Input
                   id='password'
                   type='password'
+                  placeholder='Enter your password'
                   required
                   {...register("password")}
+                  onFocus={() => setError(null)}
                 />
               </div>
               {error && <div className='text-error text-center'>{error}</div>}

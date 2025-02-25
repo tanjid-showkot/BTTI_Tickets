@@ -2,11 +2,11 @@
 
 import { createBrowserRouter } from "react-router";
 import Login from "../Login/Login";
-import Home from "../Accounts/Home";
-import Layout from "../Accounts/Layout";
-import SettleRefund from "../Accounts/SettleRefund";
-import AccountsDashboard from "../Accounts/AccountsDashboard";
-import Profile from "../Accounts/Profile";
+// import Home from "../Accounts/Home";
+// import Layout from "../Accounts/Layout";
+// import SettleRefund from "../Accounts/SettleRefund";
+// import AccountsDashboard from "../Accounts/AccountsDashboard";
+// import Profile from "../Accounts/Profile";
 import AdminLayout from "../Admin/AdminLayout";
 import AdminDashboard from "../Admin/AdminDashboard";
 import RefundApproval from "../Admin/RefundApproval";
@@ -45,31 +45,31 @@ let webRouter = createBrowserRouter([
       },
     ],
   },
-  {
-    path: "/accounts",
-    element: (
-      <PrivateRoute>
-        <Layout />
-      </PrivateRoute>
-    ),
-    children: [
-      {
-        path: "",
-        element: <Home></Home>,
-      },
-      {
-        path: "accountsDashboard",
-        element: <AccountsDashboard></AccountsDashboard>,
-      },
-      {
-        path: "settleRefund",
-        element: <SettleRefund></SettleRefund>,
-      },
-      {
-        path: "accountsProfile",
-        element: <Profile></Profile>,
-      },
-    ],
-  },
+  // {
+  //   path: "/accounts",
+  //   element: (
+  //     <PrivateRoute>
+  //       <Layout />
+  //     </PrivateRoute>
+  //   ),
+  //   children: [
+  //     {
+  //       path: "",
+  //       element: <Home></Home>,
+  //     },
+  //     {
+  //       path: "accountsDashboard",
+  //       element: <AccountsDashboard></AccountsDashboard>,
+  //     },
+  //     {
+  //       path: "settleRefund",
+  //       element: <SettleRefund></SettleRefund>,
+  //     },
+  //     {
+  //       path: "accountsProfile",
+  //       element: <Profile></Profile>,
+  //     },
+  //   ],
+  // },
 ]);
 export default webRouter;

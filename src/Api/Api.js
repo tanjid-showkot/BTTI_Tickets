@@ -1,9 +1,30 @@
 const url = "https://brtc.pythonanywhere.com/api/"
+function getErrorMessage(response) {
+    const { status } = response;
+
+    switch (status) {
+        case 400:
+            return "Bad Request: Please check your input and try again.";
+        case 401:
+            return "Unauthorized: You must be logged in to perform this action.";
+        case 403:
+            return "Forbidden: You don't have permission to access this resource.";
+        case 404:
+            return "Not Found: The requested resource could not be found.";
+        case 500:
+            return "Internal Server Error: Something went wrong on our end. Please try again later.";
+        default:
+            return "An unexpected error occurred. Please try again.";
+    }
+}
+
 const handleResponse = async (response) => {
     if (!response.ok) {
-        const errorData = await response.json();
-        const message = JSON.stringify(errorData);
-        console.log(message);
+        // const errorData = await response.json();
+        // const message = JSON.stringify(errorData);
+        // console.log(message);
+        // throw new Error(message);
+        const message = getErrorMessage(response);
         throw new Error(message);
     }
     return response;
