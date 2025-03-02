@@ -1,8 +1,9 @@
 /** @format */
 
 import { Outlet } from "react-router";
-import VNavbar from "./vNavbar";
+
 import BottomTabBar from "../Components/BottomTabBar";
+import VNavbar from "./VNavbar";
 
 const VLayout = () => {
   return (
