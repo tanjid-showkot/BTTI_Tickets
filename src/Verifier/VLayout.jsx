@@ -1,7 +1,6 @@
 /** @format */
 
 import { Outlet } from "react-router";
-
 import BottomTabBar from "../Components/BottomTabBar";
 import VNavbar from "./VNavbar";
 

@@ -4,6 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { getSoldTicketRange, getUser } from "../Api/Api";
 import AuthContext from "../Context/Context";
+import { CSVLink } from "react-csv";
 const Sales = () => {
   const [range, setRange] = useState({ from: "", to: "" });
   const [showPicker, setShowPicker] = useState(false);
@@ -17,6 +18,18 @@ const Sales = () => {
     used: "",
     refund_status: "",
   });
+
+  const headers = [
+    { label: "Date", key: "date" },
+    { label: "Id", key: "id" },
+    { label: "Ticket Type", key: "ticket_type" },
+    { label: "Amount", key: "amount" },
+    { label: "Ticket Serial", key: "ticket_serial" },
+    { label: "Roll_number", key: "roll_number" },
+    { label: "Sold By", key: "accountant" },
+    { label: "status", key: "refund_status" },
+    { label: "Refunded By", key: "refund_verifier" },
+  ];
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
@@ -117,8 +130,18 @@ const Sales = () => {
       <div className='lg:flex w-full justify-between items-center mt-4'>
         <h1 className=' text-2xl font-bold lg:w-[40%]  ms-4'>Sales Record</h1>
         <div className='lg:flex justify-end lg:me-20 lg:w-[60%]   '>
-          <div className='relative my-4 flex justify-center lg:w-[50%]   '>
+          <div className='relative my-4 flex justify-center lg:w-[50%] items-center   '>
             {/* <div popover='auto' id='rdp-popover' className='dropdown'></div> */}
+            <CSVLink
+              data={filterTicket}
+              headers={headers}
+              filename={"my-file.csv"}
+              className={` ${
+                filterTicket.length < 1 && "hidden"
+              } btn btn-primary btn-outline`}
+              target='_blank'>
+              Download as CSV
+            </CSVLink>
             <fieldset className='fieldset w-full mx-3'>
               {/* <legend className='fieldset-legend'>Select Date</legend> */}
               <input
@@ -148,14 +171,14 @@ const Sales = () => {
               </div>
             )}
           </div>
-          <div className='flex justify-center w-full lg:w-[50%] items-center gap-4'>
-            <fieldset className='fieldset w-[50%]'>
+          <div className='flex justify-center  md:w-[50%] mx-auto items-center gap-4'>
+            <fieldset className='fieldset w-[52%] md:w-[50%]'>
               {/* <legend className='fieldset-legend'>Accounts</legend> */}
               <select
                 name='accountant'
                 value={filters.accountant}
                 onChange={handleFilterChange}
-                className='select select-primary '>
+                className='select select-primary  min-w-full '>
                 <option value=''>Select Account</option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.username}>
@@ -164,7 +187,7 @@ const Sales = () => {
                 ))}
               </select>
             </fieldset>
-            <div className='filter  w-[50%] '>
+            <div className='filter  md:w-[50%] '>
               <input
                 onClick={handleReset}
                 className='btn filter-reset'
@@ -248,10 +271,10 @@ const Sales = () => {
                   <th>Date</th>
                   <th>Ticket Type</th>
                   <th>Amount</th>
-                  <th>Status</th>
+                  <th>Ticket Serial</th>
                   <th>Roll No</th>
                   <th>Sold By</th>
-                  <th>Refunded Status</th>
+                  <th>Status</th>
                   <th>Refunded By</th>
                 </tr>
               </thead>
@@ -262,11 +285,16 @@ const Sales = () => {
                     <td>{moment(soldTicket.date).format("YYYY-MM-DD")}</td>
                     <td>{soldTicket.ticket_type}</td>
                     <td>{Number(soldTicket.amount)}</td>
+                    <td>{soldTicket.ticket_serial}</td>
 
-                    <td>{soldTicket.used ? "used" : "not Used"}</td>
+                    {/* <td>{soldTicket.used ? "used" : "not Used"}</td> */}
                     <td>{soldTicket.roll_number}</td>
                     <td>{soldTicket.accountant}</td>
-                    <td>{soldTicket.refund_status}</td>
+                    <td>
+                      {!soldTicket.used && soldTicket.refund_status
+                        ? soldTicket.refund_status
+                        : "Used"}
+                    </td>
                     <td>{soldTicket.refund_verifier}</td>
                   </tr>
                 ))}
@@ -277,10 +305,11 @@ const Sales = () => {
                   <th>Date</th>
                   <th>Ticket Type</th>
                   <th>Amount</th>
-                  <th>Status</th>
+                  {/* <th>Status</th> */}
+                  <th>Ticket Serial</th>
                   <th>Roll No</th>
                   <th>Sold By</th>
-                  <th>Refunded Status</th>
+                  <th>Status</th>
                   <th>Refunded By</th>
                 </tr>
               </tfoot>
