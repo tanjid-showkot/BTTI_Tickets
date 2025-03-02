@@ -18,7 +18,8 @@ import { useNavigate } from "react-router";
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const { setError, error, user, UserLogin } = useContext(AuthContext);
+  const { setError, error, user, UserLogin, setLoading } =
+    useContext(AuthContext);
 
   const handleLogin = async (data) => {
     await UserLogin(data);
@@ -29,6 +30,8 @@ export function LoginForm({ className, ...props }) {
     if (user && user.user_type) {
       if (user.user_type === "admin") {
         navigate("/admin");
+      } else if (user.user_type === "verifier") {
+        navigate("/verifier");
       }
     }
   }, [user, navigate]);

@@ -4,15 +4,15 @@ function getErrorMessage(response) {
 
     switch (status) {
         case 400:
-            return "Bad Request: Please check your input and try again.";
+            return "Please check your input and try again.";
         case 401:
-            return "Unauthorized: You must be logged in to perform this action.";
+            return "You must be logged in to perform this action.";
         case 403:
-            return "Forbidden: You don't have permission to access this resource.";
+            return "You don't have permission to access this resource.";
         case 404:
-            return "Not Found: The requested resource could not be found.";
+            return "The requested resource could not be found.";
         case 500:
-            return "Internal Server Error: Something went wrong on our end. Please try again later.";
+            return "Something went wrong on our end. Please try again later.";
         default:
             return "An unexpected error occurred. Please try again.";
     }
@@ -85,10 +85,9 @@ export const addUser = async (token, data) => {
         throw error;
     }
 };
-
-export const getTicketForAccount = async (token) => {
+export const getUser = async (token) => {
     try {
-        const response = await fetch(`${url}ticket-management/account/tickets/`, {
+        const response = await fetch(`${url}account/users/`, {
             method: "GET",
             headers: {
                 "content-type": "application/json",
@@ -101,9 +100,204 @@ export const getTicketForAccount = async (token) => {
         throw error;
     }
 };
-export const sellTicket = async (token, data) => {
+export const deleteUser = async (token, id) => {
     try {
-        const response = await fetch(`${url}ticket-management/sell-tickets/`, {
+        const response = await fetch(`${url}account/users/${id}/`, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const updateUser = async (token, id, data) => {
+    try {
+        const response = await fetch(`${url}account/users/${id}/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const createTicket = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/tickets/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const getTickets = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/tickets/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const updateTicketStatus = async (token, id, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/tickets/${id}/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const deleteTicket = async (token, id) => {
+    try {
+        const response = await fetch(`${url}ticket-management/tickets/${id}/`, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const getTicketSetting = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/settings/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const editTicketSetting = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/settings/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const adminDashboard = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/admin-dashboard/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const getSoldTicketRange = async (token, startDate, endDate) => {
+    try {
+        const response = await fetch(`${url}ticket-management/admin-sold-tickets/?start_date=${startDate}&end_date=${endDate}`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+
+
+
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+
+export const adminApproval = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/tickets-for-refund-approval/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const adminRefundApprove = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/approve-ticket-refund/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const adminRefundBulkApprove = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/bulk-approve-ticket-refund/`, {
             method: "POST",
             headers: {
                 "content-type": "application/json",
@@ -119,9 +313,46 @@ export const sellTicket = async (token, data) => {
 };
 
 
-export const getAccountDashboard = async (token, date) => {
+export const adminRefundReject = async (token, data) => {
     try {
-        const response = await fetch(`${url}ticket-management/account-dashboard/${date.day}/${date.month}/${date.year}`, {
+        const response = await fetch(`${url}ticket-management/reject-ticket-refund/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const adminRefundBulkReject = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/bulk-reject-ticket-refund/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+
+//verifier
+
+export const getVerifyTicket = async (token, id) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verify-sold-ticket/${id}/`, {
             method: "GET",
             headers: {
                 "content-type": "application/json",
@@ -134,4 +365,53 @@ export const getAccountDashboard = async (token, date) => {
         throw error;
     }
 };
+
+export const getPendingRefundTicket = async (token, date) => {
+    try {
+        const response = await fetch(`${url}ticket-management/get-pending-refund-tickets/${date.day}/${date.month}/${date.year}`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const postRefundTicket = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/initiate-ticket-refund/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const postUseTicket = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/mark-as-used-sold-ticket/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
 

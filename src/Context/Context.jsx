@@ -5,19 +5,23 @@ import { signIn, VerifyToken } from "../Api/Api";
 
 const AuthContext = createContext();
 export const Context = ({ children }) => {
-  const [token, setToken] = useState(() => {
-    localStorage.getItem("token") || "";
-  });
+  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const userVerify = async (token) => {
+    setLoading(true);
     try {
       await VerifyToken(token)
         .then((res) => res.json())
         .then((data) => {
           if (data.user.user_type === "admin") {
+            setUser(data.user);
+            setError(null);
+            setToken(token);
+            localStorage.setItem("token", token);
+          } else if (data.user.user_type === "verifier") {
             setUser(data.user);
             setError(null);
             setToken(token);
@@ -36,6 +40,7 @@ export const Context = ({ children }) => {
   };
 
   const UserLogin = async (data) => {
+    setLoading(true);
     try {
       await signIn(data)
         .then((res) => res.json())
@@ -57,25 +62,27 @@ export const Context = ({ children }) => {
 
   const checkAuthState = async () => {
     setLoading(true);
-    const storedToken = localStorage.getItem("token");
+    // const storedToken = localStorage.getItem("token");
     try {
-      if (storedToken) {
-        setToken(storedToken);
-        await userVerify(storedToken);
+      if (token) {
+        setToken(token);
+        await userVerify(token);
+        setLoading(false);
       } else {
         setUser(null);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error checking auth state:", error);
       setUser(null);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // 🔥 Run this when the app loads to check if user is already logged in
   useEffect(() => {
     checkAuthState();
-  }, []);
+  }, [token]);
 
   const contextInfo = {
     token,
@@ -86,6 +93,7 @@ export const Context = ({ children }) => {
     UserLogin,
     logOutUser,
     userVerify,
+    setLoading,
   };
   return (
     <AuthContext.Provider value={contextInfo}>{children}</AuthContext.Provider>

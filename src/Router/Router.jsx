@@ -13,11 +13,38 @@ import RefundApproval from "../Admin/RefundApproval";
 import ManageTicket from "../Admin/ManageTicket";
 import ManageUser from "../Admin/ManageUser";
 import PrivateRoute from "./PrivateRoute";
+import Sales from "../Admin/Sales";
+import VLayout from "../Verifier/VLayout";
+import Verifier from "../Verifier/Verifier";
+import VProfile from "../Verifier/VProfile";
+import PendingList from "../Verifier/PendingList";
 
 let webRouter = createBrowserRouter([
   {
     path: "/",
     element: <Login></Login>,
+  },
+  {
+    path: "/verifier",
+    element: (
+      <PrivateRoute>
+        <VLayout></VLayout>
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        path: "",
+        element: <Verifier></Verifier>,
+      },
+      {
+        path: "vProfile",
+        element: <VProfile></VProfile>,
+      },
+      {
+        path: "vPendingList",
+        element: <PendingList></PendingList>,
+      },
+    ],
   },
   {
     path: "/admin",
@@ -42,6 +69,10 @@ let webRouter = createBrowserRouter([
       {
         path: "manageUser",
         element: <ManageUser></ManageUser>,
+      },
+      {
+        path: "tickets",
+        element: <Sales></Sales>,
       },
     ],
   },

@@ -4,19 +4,19 @@ import { useContext } from "react";
 
 import AuthContext from "../Context/Context";
 import { Navigate, useLocation } from "react-router";
+import Loading from "../Components/Loading";
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useContext(AuthContext);
+  const { user, token, loading } = useContext(AuthContext);
 
   const location = useLocation();
 
-  // Only return the children if the token exists
-  if (loading) return <p>Loading......</p>;
-  if (user) {
+  if (loading) return <Loading></Loading>;
+  if (user && token) {
     return children;
   }
 
-  return <Navigate to='/' state={location.pathname} replace={true} />;
+  return <Navigate to='/' state={{ from: location.pathname }} replace />;
 };
 
 export default PrivateRoute;

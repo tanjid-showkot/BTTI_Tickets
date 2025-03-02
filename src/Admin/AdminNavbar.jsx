@@ -34,6 +34,9 @@ const AdminNavbar = () => {
             <li>
               <NavLink to='/admin/refundApproval'>Refund</NavLink>
             </li>
+            {/* <li>
+              <NavLink to='/admin/tickets'>Sales</NavLink>
+            </li> */}
             <li>
               <NavLink to='/admin/manageTicket'>Tickets</NavLink>
             </li>
@@ -70,6 +73,9 @@ const AdminNavbar = () => {
               </li>
               <li>
                 <NavLink to='/admin/refundApproval'>Refund</NavLink>
+              </li>
+              <li>
+                <NavLink to='/admin/tickets'>Sales</NavLink>
               </li>
               <li>
                 <NavLink to='/admin/manageTicket'>Tickets</NavLink>

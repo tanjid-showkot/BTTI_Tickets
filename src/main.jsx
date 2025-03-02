@@ -6,6 +6,7 @@ import webRouter from "./Router/Router.jsx";
 import { RouterProvider } from "react-router";
 import { registerSW } from "virtual:pwa-register";
 import { Context } from "./Context/Context.jsx";
+import "react-day-picker/style.css";
 
 const updateSW = registerSW({
   onNeedRefresh() {
