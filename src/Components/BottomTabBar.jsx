@@ -36,8 +36,8 @@ const TabItem = ({ to, icon, label, active }) => {
   return (
     <Link
       to={to}
-      className={`flex flex-col items-center text-gray-600 ${
-        active ? "text-blue-500" : ""
+      className={`flex flex-col items-center  ${
+        active ? "text-blue-500" : "text-gray-600"
       }`}>
       <span className='text-xl'>{icon}</span>
       <span className='text-xs'>{label}</span>

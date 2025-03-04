@@ -367,8 +367,9 @@ export const getVerifyTicket = async (token, id) => {
 };
 
 export const getPendingRefundTicket = async (token, date) => {
+
     try {
-        const response = await fetch(`${url}ticket-management/get-pending-refund-tickets/${date.day}/${date.month}/${date.year}`, {
+        const response = await fetch(`${url}ticket-management/get-pending-refund-tickets/${date}`, {
             method: "GET",
             headers: {
                 "content-type": "application/json",

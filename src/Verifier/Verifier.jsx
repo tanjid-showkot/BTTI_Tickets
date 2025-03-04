@@ -10,10 +10,11 @@ import { MdVerifiedUser } from "react-icons/md";
 const Verifier = () => {
   const { register, handleSubmit, reset } = useForm();
   const { token } = useContext(AuthContext);
-
+  const [message, setMessage] = useState("");
   const [ticket, setTicket] = useState({});
 
   const getTicket = async (id) => {
+    setMessage("");
     try {
       await getVerifyTicket(token, id.id)
         .then((res) => res.json())
@@ -23,7 +24,12 @@ const Verifier = () => {
           reset();
         });
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
+      if (error.message === "The requested resource could not be found.")
+        setMessage("Invalid Ticket Number");
+      else {
+        setMessage(error.message);
+      }
     }
   };
   const handleUseTicket = async (data) => {
@@ -46,10 +52,13 @@ const Verifier = () => {
     }
   };
   return (
-    <div>
-      <fieldset className='fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box'>
-        <legend className='fieldset-legend'>Verify Ticket</legend>
-        <form className='w-full' action='' onSubmit={handleSubmit(getTicket)}>
+    <div className='m-3'>
+      <fieldset className='fieldset w-full bg-blue-100 border  border-blue-100 p-4 rounded-box'>
+        <legend className='fieldset-legend text-lg '>Verify Ticket</legend>
+        <form
+          className='w-full pb-4'
+          action=''
+          onSubmit={handleSubmit(getTicket)}>
           <div className='join w-full'>
             <input
               type='number'
@@ -58,42 +67,54 @@ const Verifier = () => {
               placeholder='Ticket Number'
             />
             <input
-              className='btn btn-accent w-[40%] join-item'
+              className='btn bg-gradient-to-r text-lg font-bold from-[#01f1fe] to-[#4fadfe] w-[40%] join-item'
               type='submit'
               value={"Verify"}
             />
           </div>
         </form>
       </fieldset>
+      {message && (
+        <div className=' mt-20 gap-3 mx-10 flex items-center justify-center font-bold text-2xl text-rose-600 p-4 bg-rose-100  rounded-2xl'>
+          <p className='text-center'>{message}</p>
+        </div>
+      )}
       {Object.keys(ticket).length > 0 && (
         <div>
           <div className='text-center'>
-            <div className='text-green-500 mt-20 gap-3 flex items-center justify-center font-bold text-2xl '>
+            <div className=' mt-20 gap-3 mx-10 flex items-center justify-center font-bold text-2xl '>
               {" "}
-              <MdVerifiedUser />
-              <span>Verified</span>
+              {/* <MdVerifiedUser /> */}
+              {ticket.used ? (
+                <span className='text-error'>
+                  This ticket has already been used.
+                </span>
+              ) : ticket.refund_status === "not_refunded" ? (
+                <span className='text-success'>This ticket is valid</span>
+              ) : (
+                <span>
+                  You have already applied for a refund. Current status:{" "}
+                  <strong>{ticket.refund_status}</strong> .
+                </span>
+              )}
             </div>
             <div
-              className={` ${
-                !ticket.used && ticket.refund_status === "not_refunded"
-                  ? "bg-green-200 "
-                  : "bg-red-200"
-              }   mt-3 text-xl font-medium text-gray-700  py-5 px-12 w-[70%] mx-auto text-center rounded-4xl`}>
+              className={`bg-blue-100  mt-3 text-xl font-medium text-gray-700  py-5 px-12 w-[70%] mx-auto text-center rounded-4xl`}>
               <p>
                 Type: <strong>{ticket.ticket_type}</strong>{" "}
               </p>
               <p>
-                Amount: <strong>{ticket.amount} Tk</strong>{" "}
+                Fee:<strong>{Number(ticket.amount)} Tk</strong>{" "}
               </p>
               <p>
-                Serial: <strong>{ticket.ticket_serial}</strong>{" "}
+                <strong>{ticket.ticket_serial}</strong>{" "}
               </p>
               <p>
                 Roll No: <strong>{ticket.roll_number}</strong>{" "}
               </p>
               <p>
                 Date:{" "}
-                <strong>{moment(ticket.date).format("YYYY/MM/DD")}</strong>{" "}
+                <strong>{moment(ticket.date).format("DD/MM/YYYY")}</strong>{" "}
               </p>
               <p>
                 Time: <strong>{moment(ticket.date).format("h:mm a")}</strong>{" "}
