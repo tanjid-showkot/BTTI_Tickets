@@ -142,7 +142,7 @@ const Sales = () => {
               target='_blank'>
               Download as CSV
             </CSVLink>
-            <fieldset className='fieldset w-full mx-3'>
+            <fieldset className='fieldset w-full mx-3 relative'>
               {/* <legend className='fieldset-legend'>Select Date</legend> */}
               <input
                 type='text'
@@ -150,26 +150,27 @@ const Sales = () => {
                 value={footer}
                 onClick={() => setShowPicker(!showPicker)}
                 placeholder='Select day range'
-                className='input min-w-full input-info'
+                className='input min-w-full input-info '
               />
+
+              {showPicker && (
+                <div
+                  ref={pickerRef}
+                  className='absolute w-full top-full left-0  z-10 mt-2 bg-white shadow-lg border p-2'>
+                  <DayPicker
+                    mode='range'
+                    className='react-day-picker shadow-lg p-5  '
+                    selected={range}
+                    footer={footer}
+                    onSelect={getSoldTicket}
+                    classNames={{
+                      today: `fill-green-500 bg-green-500 rounded-full text-base text-white font-bold `,
+                      chevron: "w-6 h-6 fill-green-500", // Chevron (arrow) color
+                    }}
+                  />
+                </div>
+              )}
             </fieldset>
-            {showPicker && (
-              <div
-                ref={pickerRef}
-                className='absolute  z-10 mt-2 bg-white shadow-lg border p-2'>
-                <DayPicker
-                  mode='range'
-                  className='react-day-picker shadow-lg p-5  '
-                  selected={range}
-                  footer={footer}
-                  onSelect={getSoldTicket}
-                  classNames={{
-                    today: `fill-green-500 bg-green-500 rounded-full text-base text-white font-bold `,
-                    chevron: "w-6 h-6 fill-green-500", // Chevron (arrow) color
-                  }}
-                />
-              </div>
-            )}
           </div>
           <div className='flex justify-center  md:w-[50%] mx-auto items-center gap-4'>
             <fieldset className='fieldset w-[52%] md:w-[50%]'>
