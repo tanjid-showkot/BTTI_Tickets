@@ -1,9 +1,16 @@
 /** @format */
 
+import { useContext } from "react";
 import { LoginForm } from "../Components/LoginForm";
 import logo from "/BRTC Logo.png";
+import AuthContext from "../Context/Context";
+import Loading from "../Components/Loading";
 
 const Login = () => {
+  const { loading } = useContext(AuthContext);
+
+  if (loading) return <Loading></Loading>;
+
   return (
     <div className='flex flex-col min-h-svh w-full items-center justify-center p-6 md:p-10'>
       <div className='flex flex-col items-center justify-center gap-3 mb-5 '>

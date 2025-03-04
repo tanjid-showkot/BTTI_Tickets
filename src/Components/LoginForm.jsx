@@ -14,12 +14,12 @@ import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../Context/Context";
 import { useNavigate } from "react-router";
+import Loading from "./Loading";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const { setError, error, user, UserLogin, setLoading } =
-    useContext(AuthContext);
+  const { setError, error, user, UserLogin, loading } = useContext(AuthContext);
 
   const handleLogin = async (data) => {
     await UserLogin(data);
@@ -72,7 +72,11 @@ export function LoginForm({ className, ...props }) {
                   onFocus={() => setError(null)}
                 />
               </div>
-              {error && <div className='text-error text-center'>{error}</div>}
+              {error && (
+                <div className='text-error font-medium bg-rose-100 py-2 rounded-md text-center'>
+                  {error}
+                </div>
+              )}
               <input
                 type='submit'
                 value={"Login"}
