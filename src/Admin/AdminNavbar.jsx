@@ -2,16 +2,47 @@
 
 import { NavLink, useNavigate } from "react-router";
 import logo from "/BRTC Logo.png";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import AuthContext from "../Context/Context";
 
 const AdminNavbar = () => {
-  const { logOutUser } = useContext(AuthContext);
+  const { logOutUser, user } = useContext(AuthContext);
+  console.log(user);
   const navigate = useNavigate();
   const handleLogout = () => {
     logOutUser();
     navigate("/", { replace: true });
   };
+  const menuItems = (
+    <React.Fragment>
+      <li>
+        <NavLink to='/admin'>Dashboard</NavLink>
+      </li>
+      {user.user_type === "superadmin" && (
+        <li>
+          <NavLink to='/admin/bulkDelete'>Bulk Remove</NavLink>
+        </li>
+      )}
+      <li>
+        <NavLink to='/admin/refundApproval'>Refund</NavLink>
+      </li>
+      <li className='lg:hidden'>
+        <NavLink to='/admin/tickets'>Sales</NavLink>
+      </li>
+      <li>
+        <NavLink to='/admin/manageTicket'>Tickets</NavLink>
+      </li>
+      {user.user_type === "superadmin" && (
+        <li>
+          <NavLink to='/admin/manageUser'>Users</NavLink>
+        </li>
+      )}
+
+      <li>
+        <a onClick={handleLogout}>Logout</a>
+      </li>
+    </React.Fragment>
+  );
   return (
     <div>
       <div className='navbar bg-base-100 shadow-sm'>
@@ -28,24 +59,7 @@ const AdminNavbar = () => {
 
         <div className='navbar-end w-[20%] lg:w-[50%]'>
           <ul className='menu menu-horizontal px-1 font-bold lg:flex hidden '>
-            <li>
-              <NavLink to='/admin'>Dashboard</NavLink>
-            </li>
-            <li>
-              <NavLink to='/admin/refundApproval'>Refund</NavLink>
-            </li>
-            {/* <li>
-              <NavLink to='/admin/tickets'>Sales</NavLink>
-            </li> */}
-            <li>
-              <NavLink to='/admin/manageTicket'>Tickets</NavLink>
-            </li>
-            <li>
-              <NavLink to='/admin/manageUser'>Users</NavLink>
-            </li>
-            <li>
-              <a onClick={handleLogout}>Logout</a>
-            </li>
+            {menuItems}
           </ul>
 
           <div className='dropdown dropdown-end'>
@@ -68,24 +82,7 @@ const AdminNavbar = () => {
             <ul
               tabIndex={0}
               className='menu menu-sm dropdown-content bg-base-100 rounded-box z-[-10]  mt-3 w-52 p-2 shadow'>
-              <li>
-                <NavLink to='/admin'>Dashboard</NavLink>
-              </li>
-              <li>
-                <NavLink to='/admin/refundApproval'>Refund</NavLink>
-              </li>
-              <li>
-                <NavLink to='/admin/tickets'>Sales</NavLink>
-              </li>
-              <li>
-                <NavLink to='/admin/manageTicket'>Tickets</NavLink>
-              </li>
-              <li>
-                <NavLink to='/admin/manageUser'>Users</NavLink>
-              </li>
-              <li>
-                <a onClick={handleLogout}>Logout</a>
-              </li>
+              {menuItems}
             </ul>
           </div>
         </div>

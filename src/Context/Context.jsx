@@ -16,7 +16,10 @@ export const Context = ({ children }) => {
       await VerifyToken(token)
         .then((res) => res.json())
         .then((data) => {
-          if (data.user.user_type === "admin") {
+          if (
+            data.user.user_type === "admin" ||
+            data.user.user_type === "superadmin"
+          ) {
             setUser(data.user);
             setError(null);
             setToken(token);

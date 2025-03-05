@@ -27,7 +27,7 @@ export function LoginForm({ className, ...props }) {
 
   useEffect(() => {
     if (user && user.user_type) {
-      if (user.user_type === "admin") {
+      if (user.user_type === "admin" || user.user_type === "superadmin") {
         navigate("/admin");
       } else if (user.user_type === "verifier") {
         navigate("/verifier");

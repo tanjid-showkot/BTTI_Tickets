@@ -416,3 +416,38 @@ export const postUseTicket = async (token, data) => {
 };
 
 
+//bulk Delete
+
+export const bulkDeleteSoldTicketsCount = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/bulk-delete-sold-tickets-count/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+export const bulkDeleteSoldTickets = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/bulk-delete-sold-tickets/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+

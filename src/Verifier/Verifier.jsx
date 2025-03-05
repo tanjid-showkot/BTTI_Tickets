@@ -13,9 +13,11 @@ const Verifier = () => {
   const [ticket, setTicket] = useState({});
 
   const getTicket = async (id) => {
+    const value = "FT-A" + id.id;
+    // console.log(value);
     setMessage("");
     try {
-      await getVerifyTicket(token, id.id)
+      await getVerifyTicket(token, value)
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
@@ -89,7 +91,7 @@ const Verifier = () => {
                   This ticket has already been used.
                 </span>
               ) : ticket.refund_status === "not_refunded" ? (
-                <span className='text-success'>This ticket is valid</span>
+                <span className='text-success'>This is a valid ticket</span>
               ) : (
                 <span>
                   You have already applied for a refund. Current status:{" "}

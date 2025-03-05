@@ -19,7 +19,7 @@ import AuthContext from "../Context/Context";
 const ManageUser = () => {
   const { register, handleSubmit, reset } = useForm();
   const [error, setError] = useState("");
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [id, setId] = useState(null);
   const [name, setName] = useState("");
@@ -105,7 +105,7 @@ const ManageUser = () => {
     }
   };
   return (
-    <div>
+    <div className='pb-10'>
       <h1 className='text-3xl lg:text-3xl font-bold m-4 '>Manage User</h1>
       <div className='flex justify-end me-10 '>
         <button
@@ -114,64 +114,142 @@ const ManageUser = () => {
           Create New User
         </button>
       </div>
-      {users.map((user) => (
-        <div key={user.id} className='m-4 flex justify-center '>
-          <div className=' w-full p-3 rounded-box border border-base-content/5 bg-base-100'>
-            <div className='flex  justify-between items-center'>
-              <div>
-                <p>
-                  <strong>Name:</strong> {user.first_name}
-                </p>
-                <p>
-                  {" "}
-                  <strong>Username:</strong> {user.username}
-                </p>
-                <p>
-                  {" "}
-                  <strong>User Type:</strong> {user.user_type}
-                </p>
-              </div>
-              <div className='grid grid-cols-1'>
-                <div className='grid-cols-2'>
+      {users
+
+        .sort((a, b) => (a.id === user.id ? -1 : b.id === user.id ? 1 : 0))
+        .map((u) => (
+          <div key={u.id} className='m-4 flex justify-center '>
+            <div
+              className={`w-full p-3 rounded-box ${
+                u.id === user.id
+                  ? "border border-success shadow-lg  "
+                  : "border border-base-content/20 bg-base-100"
+              } `}>
+              <div className='flex  justify-between items-center'>
+                <div>
+                  <p>
+                    <strong>Name:</strong> {u.first_name}
+                  </p>
+                  <p>
+                    {" "}
+                    <strong>Username:</strong> {u.username}
+                  </p>
+                  <p>
+                    {" "}
+                    <strong>User Type:</strong> {u.user_type}
+                  </p>
+                </div>
+                <div className='grid grid-cols-1'>
+                  <div className='grid-cols-2'>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          onClick={() => setId(u.id)}
+                          className='btn m-1 btn-success'
+                          variant='outline'>
+                          Edit
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className='sm:max-w-[425px] bg-white '>
+                        <DialogHeader>
+                          <DialogTitle>Edit User Info</DialogTitle>
+                        </DialogHeader>
+                        <div className='grid gap-4 py-4'>
+                          <div className='grid grid-cols-4 items-center gap-4'>
+                            <Label htmlFor='name' className='text-right'>
+                              Name
+                            </Label>
+                            <Input
+                              required
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              onFocus={() => setError(null)}
+                              id='name'
+                              placeholder='Enter new name'
+                              className='col-span-3 input input-primary input-bordered'
+                            />
+                          </div>
+                          <div className='grid grid-cols-4 items-center gap-4'>
+                            <Label htmlFor='username' className='text-right'>
+                              Username
+                            </Label>
+                            <input
+                              required
+                              value={username}
+                              onChange={(e) => setUsername(e.target.value)}
+                              onFocus={() => setError(null)}
+                              id='username'
+                              placeholder='Enter new username'
+                              className='col-span-3 input input-primary input-bordered'
+                            />
+                          </div>
+                          {error && (
+                            <div className='text-error text-center'>
+                              {error}
+                            </div>
+                          )}
+                        </div>
+                        <DialogFooter>
+                          <Button onClick={handleUpdateUser} type='submit'>
+                            Save changes
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+
+                    <button
+                      onClick={() => {
+                        document.getElementById("my_modal_3").showModal();
+                        setId(u.id);
+                      }}
+                      className='btn m-1 btn-error'>
+                      Delete
+                    </button>
+                  </div>
+                  {/* <button className='btn  m-1 btn-warning'>
+                  Change Password
+                </button> */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
-                        onClick={() => setId(user.id)}
-                        className='btn m-1 btn-success'
+                        onClick={() => setId(u.id)}
+                        className='btn  m-1 btn-warning'
                         variant='outline'>
-                        Edit
+                        Change Password
                       </Button>
                     </DialogTrigger>
                     <DialogContent className='sm:max-w-[425px] bg-white '>
                       <DialogHeader>
-                        <DialogTitle>Edit User Info</DialogTitle>
+                        <DialogTitle>Update Password</DialogTitle>
                       </DialogHeader>
                       <div className='grid gap-4 py-4'>
                         <div className='grid grid-cols-4 items-center gap-4'>
                           <Label htmlFor='name' className='text-right'>
-                            Name
+                            Password
                           </Label>
                           <Input
                             required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             onFocus={() => setError(null)}
-                            id='name'
-                            placeholder='Enter new name'
+                            id='password'
+                            placeholder='Enter new Password'
                             className='col-span-3 input input-primary input-bordered'
                           />
                         </div>
                         <div className='grid grid-cols-4 items-center gap-4'>
-                          <Label htmlFor='username' className='text-right'>
-                            Username
+                          <Label
+                            htmlFor='confirmPassword'
+                            className='text-right'>
+                            Confirm Password
                           </Label>
                           <input
                             required
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             onFocus={() => setError(null)}
-                            id='username'
-                            placeholder='Enter new username'
+                            id='confirmPassword'
+                            placeholder='Enter Confirm Password'
                             className='col-span-3 input input-primary input-bordered'
                           />
                         </div>
@@ -180,83 +258,17 @@ const ManageUser = () => {
                         )}
                       </div>
                       <DialogFooter>
-                        <Button onClick={handleUpdateUser} type='submit'>
+                        <Button onClick={handleUpdatePassword} type='submit'>
                           Save changes
                         </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-
-                  <button
-                    onClick={() => {
-                      document.getElementById("my_modal_3").showModal();
-                      setId(user.id);
-                    }}
-                    className='btn m-1 btn-error'>
-                    Delete
-                  </button>
                 </div>
-                {/* <button className='btn  m-1 btn-warning'>
-                  Change Password
-                </button> */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => setId(user.id)}
-                      className='btn  m-1 btn-warning'
-                      variant='outline'>
-                      Change Password
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className='sm:max-w-[425px] bg-white '>
-                    <DialogHeader>
-                      <DialogTitle>Update Password</DialogTitle>
-                    </DialogHeader>
-                    <div className='grid gap-4 py-4'>
-                      <div className='grid grid-cols-4 items-center gap-4'>
-                        <Label htmlFor='name' className='text-right'>
-                          Password
-                        </Label>
-                        <Input
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          onFocus={() => setError(null)}
-                          id='password'
-                          placeholder='Enter new Password'
-                          className='col-span-3 input input-primary input-bordered'
-                        />
-                      </div>
-                      <div className='grid grid-cols-4 items-center gap-4'>
-                        <Label htmlFor='confirmPassword' className='text-right'>
-                          Confirm Password
-                        </Label>
-                        <input
-                          required
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          onFocus={() => setError(null)}
-                          id='confirmPassword'
-                          placeholder='Enter Confirm Password'
-                          className='col-span-3 input input-primary input-bordered'
-                        />
-                      </div>
-                      {error && (
-                        <div className='text-error text-center'>{error}</div>
-                      )}
-                    </div>
-                    <DialogFooter>
-                      <Button onClick={handleUpdatePassword} type='submit'>
-                        Save changes
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
       <dialog id='my_modal_5' className='modal modal-bottom sm:modal-middle'>
         <div className='modal-box'>
           <form method='dialog'>

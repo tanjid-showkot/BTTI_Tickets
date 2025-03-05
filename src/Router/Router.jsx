@@ -13,11 +13,13 @@ import RefundApproval from "../Admin/RefundApproval";
 import ManageTicket from "../Admin/ManageTicket";
 import ManageUser from "../Admin/ManageUser";
 import PrivateRoute from "./PrivateRoute";
+import SuperPrivateRoute from "./SuperPrivateRoute";
 import Sales from "../Admin/Sales";
 import VLayout from "../Verifier/VLayout";
 import Verifier from "../Verifier/Verifier";
 import VProfile from "../Verifier/VProfile";
 import PendingList from "../Verifier/PendingList";
+import BulkRemove from "../Admin/BulkRemove";
 
 let webRouter = createBrowserRouter([
   {
@@ -68,11 +70,23 @@ let webRouter = createBrowserRouter([
       },
       {
         path: "manageUser",
-        element: <ManageUser></ManageUser>,
+        element: (
+          <SuperPrivateRoute>
+            <ManageUser></ManageUser>
+          </SuperPrivateRoute>
+        ),
       },
       {
         path: "tickets",
         element: <Sales></Sales>,
+      },
+      {
+        path: "bulkDelete",
+        element: (
+          <SuperPrivateRoute>
+            <BulkRemove></BulkRemove>
+          </SuperPrivateRoute>
+        ),
       },
     ],
   },
