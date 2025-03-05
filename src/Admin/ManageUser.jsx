@@ -26,6 +26,7 @@ const ManageUser = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   useEffect(() => {
     getUsers();
   }, []);

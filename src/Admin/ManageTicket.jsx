@@ -24,6 +24,7 @@ const ManageTicket = () => {
   const [header, setHeader] = useState("");
   const [title, setTitle] = useState("");
   const inputRef = useRef(null);
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     if (isHeaderEditing) {
@@ -135,6 +136,7 @@ const ManageTicket = () => {
     };
     try {
       await editTicketSetting(token, data);
+      setSuccess("Ticket Settings updated Successfully.");
       getTicketSettings();
     } catch (error) {
       console.log(error.message);
@@ -153,6 +155,7 @@ const ManageTicket = () => {
         <button
           onClick={() => {
             setError("");
+            setSuccess("");
             document.getElementById("my_modal_5").showModal();
           }}
           className='btn btn-info'>
@@ -390,6 +393,11 @@ const ManageTicket = () => {
           {error && (
             <div className='text-error text-center bg-rose-100 py-2 rounded-lg m-3'>
               {error}
+            </div>
+          )}
+          {success && (
+            <div className='text-success text-center bg-emerald-200 py-2 rounded-lg m-3'>
+              {success}
             </div>
           )}
           <div className='modal-action'>
