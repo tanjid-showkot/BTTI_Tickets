@@ -290,14 +290,13 @@ const ManageUser = () => {
                 <Label htmlFor='userType'>User Type</Label>
 
                 <select
-                  className='select capitalize w-full validator'
+                  className='select select-neutral capitalize w-full validator'
                   {...register("user_type")}
                   id='userType'
                   required>
                   <option disabled selected value=''>
-                    Choose:
+                    Select User Type
                   </option>
-                  <option className=' capitalize'>admin</option>
                   <option className=' capitalize'>account</option>
                   <option className=' capitalize'>validator</option>
                 </select>
@@ -327,7 +326,7 @@ const ManageUser = () => {
               {error && <div className='text-error text-center'>{error}</div>}
               <input
                 type='submit'
-                value={"Login"}
+                value={"Create User"}
                 className=' w-full btn btn-primary '
               />
             </div>

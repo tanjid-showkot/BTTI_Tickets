@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { getVerifyTicket, postRefundTicket, postUseTicket } from "../Api/Api";
 import AuthContext from "../Context/Context";
 import moment from "moment";
-import { MdVerifiedUser } from "react-icons/md";
 
 const Verifier = () => {
   const { register, handleSubmit, reset } = useForm();

@@ -10,16 +10,15 @@ import {
 import { cn } from "../lib/utils";
 import { Input } from "./UI/Input";
 import { Label } from "./UI/Label";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import AuthContext from "../Context/Context";
 import { useNavigate } from "react-router";
-import Loading from "./Loading";
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm();
-  const { setError, error, user, UserLogin, loading } = useContext(AuthContext);
+  const { setError, error, user, UserLogin } = useContext(AuthContext);
 
   const handleLogin = async (data) => {
     await UserLogin(data);
@@ -80,7 +79,7 @@ export function LoginForm({ className, ...props }) {
               <input
                 type='submit'
                 value={"Login"}
-                className=' w-full btn btn-primary '
+                className=' w-full btn bg-gradient-to-r from-[#01f1fe] to-[#4fadfe] '
               />
             </div>
           </form>

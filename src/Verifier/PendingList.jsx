@@ -33,6 +33,22 @@ const PendingList = () => {
 
   return (
     <div>
+      <div>
+        <div className=' bg-gradient-to-r flex justify-around text-lg  text-center from-[#01f1fe] to-[#4fadfe] p-4 m-4 rounded-2xl '>
+          <div>
+            <p className='font-semibold'>Ticket Count</p>
+            <strong>{pendingTickets.length}</strong>
+          </div>
+          <div>
+            <p className='font-semibold'>Ticket Amount</p>
+            <strong>
+              {Number(
+                pendingTickets.reduce((sum, ticket) => sum + ticket.amount, 0)
+              )}
+            </strong>
+          </div>
+        </div>
+      </div>
       <div className='overflow-x-auto'>
         <table className='table'>
           <thead>

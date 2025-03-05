@@ -19,22 +19,24 @@ const ManageTicket = () => {
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
   const [id, setId] = useState(null);
-
   const [isHeaderEditing, setIsHeaderEditing] = useState(false);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [header, setHeader] = useState("");
   const [title, setTitle] = useState("");
   const inputRef = useRef(null);
+
   useEffect(() => {
     if (isHeaderEditing) {
       inputRef.current?.focus();
     }
   }, [isHeaderEditing]);
+
   useEffect(() => {
     if (isTitleEditing) {
       inputRef.current?.focus();
     }
   }, [isTitleEditing]);
+
   const handleDoubleClick = () => {
     setIsHeaderEditing(true);
     // setTimeout(() => inputRef.current?.focus(), 0); // Focus input after render
@@ -49,6 +51,7 @@ const ManageTicket = () => {
     getTicket();
     getTicketSettings();
   }, []);
+
   const getTicketSettings = async () => {
     try {
       await getTicketSetting(token)
@@ -67,7 +70,6 @@ const ManageTicket = () => {
       await getTickets(token)
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           setTickets(data);
         });
     } catch (error) {
@@ -77,7 +79,6 @@ const ManageTicket = () => {
 
   const handleToggle = async (id, currentStatus) => {
     try {
-      // Toggle the status (if true, send false; if false, send true)
       const updatedStatus = !currentStatus;
 
       setTickets((prev) =>
@@ -88,7 +89,6 @@ const ManageTicket = () => {
       await updateTicketStatus(token, id, { status: updatedStatus });
     } catch (error) {
       console.error("Error updating ticket status:", error);
-      // Revert UI if the request fails
       setTickets((prev) =>
         prev.map((ticket) =>
           ticket.id === id ? { ...ticket, status: currentStatus } : ticket
@@ -96,6 +96,7 @@ const ManageTicket = () => {
       );
     }
   };
+
   const handleDelete = async () => {
     console.log(id);
     try {
@@ -119,6 +120,7 @@ const ManageTicket = () => {
       document.getElementById("my_modal_3").close();
     } catch (error) {
       console.error(error.message);
+      setError(error.message);
     }
     console.log(type, amount);
   };
@@ -136,6 +138,7 @@ const ManageTicket = () => {
       getTicketSettings();
     } catch (error) {
       console.log(error.message);
+      setError(error.message);
     }
   };
   return (
@@ -233,7 +236,11 @@ const ManageTicket = () => {
                 placeholder='Enter ticket amount'
               />
             </div>
-            {error && <div className='text-error'>{error}</div>}
+            {error && (
+              <div className='text-error w-[65%] text-center bg-rose-100 py-2 rounded-lg m-3'>
+                {error}
+              </div>
+            )}
 
             <div className='flex mt-4 justify-end gap-2'>
               <button
@@ -379,8 +386,12 @@ const ManageTicket = () => {
               </div>
             </div>
           </div>
-          {error && <div className='text-error text-center'>{error}</div>}
 
+          {error && (
+            <div className='text-error text-center bg-rose-100 py-2 rounded-lg m-3'>
+              {error}
+            </div>
+          )}
           <div className='modal-action'>
             <form method='dialog'>
               {/* if there is a button in form, it will close the modal */}
