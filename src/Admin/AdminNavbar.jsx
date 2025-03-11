@@ -18,17 +18,18 @@ const AdminNavbar = () => {
       <li>
         <NavLink to='/admin'>Dashboard</NavLink>
       </li>
+
+      <li className=''>
+        <NavLink to='/admin/tickets'>Sales</NavLink>
+      </li>
+      <li>
+        <NavLink to='/admin/refundApproval'>Refund</NavLink>
+      </li>
       {user.user_type === "superadmin" && (
         <li>
           <NavLink to='/admin/bulkDelete'>Bulk Remove</NavLink>
         </li>
       )}
-      <li>
-        <NavLink to='/admin/refundApproval'>Refund</NavLink>
-      </li>
-      <li className='lg:hidden'>
-        <NavLink to='/admin/tickets'>Sales</NavLink>
-      </li>
       <li>
         <NavLink to='/admin/manageTicket'>Tickets</NavLink>
       </li>
@@ -49,7 +50,7 @@ const AdminNavbar = () => {
         <div className='navbar-start w-[90%] lg:w-[50%]    '>
           <p className=' font-black flex gap-2 items-center text-xl '>
             <span>
-              <img src={logo} className='w-8' alt='' />
+              <img src={logo} className='w-12' alt='' />
             </span>{" "}
             <span className='truncate overflow-hidden w-[80%] lg:w-full  text-ellipsis'>
               বিআরটিসি তেজগাঁও ট্রেনিং ইন্সটিটিউট
@@ -57,8 +58,8 @@ const AdminNavbar = () => {
           </p>
         </div>
 
-        <div className='navbar-end w-[20%] lg:w-[50%]'>
-          <ul className='menu menu-horizontal px-1 font-bold lg:flex hidden '>
+        <div className='navbar-end w-[20%] lg:w-[60%]'>
+          <ul className='menu menu-horizontal px-1 font-bold lg:flex hidden md:me-30'>
             {menuItems}
           </ul>
 

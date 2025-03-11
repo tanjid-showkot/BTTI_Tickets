@@ -108,6 +108,7 @@ const Sales = () => {
           .then((res) => res.json())
           .then((data) => {
             setSoldTicketRange(data);
+            setShowPicker(false);
             console.log(data);
           });
       } catch (error) {
@@ -156,7 +157,7 @@ const Sales = () => {
               {showPicker && (
                 <div
                   ref={pickerRef}
-                  className='absolute w-full top-full left-0  z-10 mt-2 bg-white shadow-lg border p-2'>
+                  className='absolute top-full left-0  z-10 mt-2 bg-white shadow-lg border p-2'>
                   <DayPicker
                     mode='range'
                     className='react-day-picker shadow-lg p-5  '

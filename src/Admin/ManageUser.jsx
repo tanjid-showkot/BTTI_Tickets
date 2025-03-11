@@ -4,17 +4,16 @@ import { useForm } from "react-hook-form";
 import { Label } from "../Components/UI/Label";
 import { Input } from "../Components/UI/Input";
 import { useContext, useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../Components/UI/Dialog";
-import { Button } from "../Components/UI/Button";
-import { addUser, deleteUser, getUser, updateUser } from "../Api/Api";
+import { addUser, deleteUser, getUser } from "../Api/Api";
 import AuthContext from "../Context/Context";
+import { UserUpdate } from "./UserUpdate";
+import { FaEdit } from "react-icons/fa";
+import { FaTrashCan } from "react-icons/fa6";
+import { IoCreateSharp } from "react-icons/io5";
+import superAdmin from "/avatar/super.png";
+import admin from "/avatar/Admin.png";
+import account from "/avatar/account.png";
+import verifier from "/avatar/varifier.png";
 
 const ManageUser = () => {
   const { register, handleSubmit, reset } = useForm();
@@ -22,10 +21,6 @@ const ManageUser = () => {
   const { token, user } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [id, setId] = useState(null);
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     getUsers();
@@ -36,7 +31,10 @@ const ManageUser = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          setUsers(data);
+          const priority = { superadmin: 1, admin: 2, account: 3, verifier: 4 };
+          setUsers(
+            data.sort((a, b) => priority[a.user_type] - priority[b.user_type])
+          );
         });
     } catch (error) {
       setError(error.message);
@@ -45,10 +43,11 @@ const ManageUser = () => {
 
   const handleCreateUser = async (data) => {
     try {
+      reset();
       await addUser(token, data);
       getUsers();
       setError("");
-      reset();
+      document.getElementById("my_modal_5").close();
     } catch (error) {
       setError(error.message);
     }
@@ -63,212 +62,89 @@ const ManageUser = () => {
       console.log(error.message);
     }
   };
-  const handleUpdateUser = async () => {
-    if (!name && !username) {
-      return setError("Please enter a name or username to update");
-    }
-    const data = {
-      ...(name ? { first_name: name } : {}),
-      ...(username ? { username: username } : {}),
-    };
-    console.log(data);
 
-    try {
-      await updateUser(token, id, data);
-      setError("");
-      getUsers();
-      setName("");
-      setUsername("");
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-  const handleUpdatePassword = async () => {
-    if (!password && !confirmPassword) {
-      return setError("Please enter a password to update");
-    }
-    if (password !== confirmPassword) {
-      return setError("Passwords do not match");
-    }
-    const data = {
-      password: password,
-      confirm_password: confirmPassword,
-    };
-    try {
-      await updateUser(token, id, data);
-      setError("");
-      getUsers();
-      setPassword("");
-      setConfirmPassword("");
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
   return (
     <div className='pb-10'>
       <h1 className='text-3xl lg:text-3xl font-bold m-4 '>Manage User</h1>
-      <div className='flex justify-end me-10 '>
+      <div className='flex justify-end me-[110px] '>
         <button
           onClick={() => document.getElementById("my_modal_5").showModal()}
           className='btn  btn-primary'>
-          Create New User
+          <IoCreateSharp /> Create New User
         </button>
       </div>
-      {users
 
-        .sort((a, b) => (a.id === user.id ? -1 : b.id === user.id ? 1 : 0))
-        .map((u) => (
-          <div key={u.id} className='m-4 flex justify-center '>
-            <div
-              className={`w-full p-3 rounded-box ${
-                u.id === user.id
-                  ? "border border-success shadow-lg  "
-                  : "border border-base-content/20 bg-base-100"
-              } `}>
-              <div className='flex  justify-between items-center'>
-                <div>
-                  <p>
-                    <strong>Name:</strong> {u.first_name}
-                  </p>
-                  <p>
-                    {" "}
-                    <strong>Username:</strong> {u.username}
-                  </p>
-                  <p>
-                    {" "}
-                    <strong>User Type:</strong> {u.user_type}
-                  </p>
-                </div>
-                <div className='grid grid-cols-1'>
-                  <div className='grid-cols-2'>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          onClick={() => setId(u.id)}
-                          className='btn m-1 btn-success'
-                          variant='outline'>
-                          Edit
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className='sm:max-w-[425px] bg-white '>
-                        <DialogHeader>
-                          <DialogTitle>Edit User Info</DialogTitle>
-                        </DialogHeader>
-                        <div className='grid gap-4 py-4'>
-                          <div className='grid grid-cols-4 items-center gap-4'>
-                            <Label htmlFor='name' className='text-right'>
-                              Name
-                            </Label>
-                            <Input
-                              required
-                              value={name}
-                              onChange={(e) => setName(e.target.value)}
-                              onFocus={() => setError(null)}
-                              id='name'
-                              placeholder='Enter new name'
-                              className='col-span-3 input input-primary input-bordered'
-                            />
-                          </div>
-                          <div className='grid grid-cols-4 items-center gap-4'>
-                            <Label htmlFor='username' className='text-right'>
-                              Username
-                            </Label>
-                            <input
-                              required
-                              value={username}
-                              onChange={(e) => setUsername(e.target.value)}
-                              onFocus={() => setError(null)}
-                              id='username'
-                              placeholder='Enter new username'
-                              className='col-span-3 input input-primary input-bordered'
-                            />
-                          </div>
-                          {error && (
-                            <div className='text-error text-center'>
-                              {error}
-                            </div>
-                          )}
-                        </div>
-                        <DialogFooter>
-                          <Button onClick={handleUpdateUser} type='submit'>
-                            Save changes
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+      <div className='grid lg:grid-cols-4 grid-cols-1 w-[80%] lg:w-[90%] mx-auto'>
+        {users.map((u) => (
+          <div
+            key={u.id}
+            className='bg-blue-50 h-[300px] w-[300px] m-5 rounded-2xl relative'>
+            {/* Header Background */}
+            <div className='bg-cyan-100 w-full h-[110px] rounded-t-2xl'></div>
 
-                    <button
-                      onClick={() => {
-                        document.getElementById("my_modal_3").showModal();
-                        setId(u.id);
-                      }}
-                      className='btn m-1 btn-error'>
-                      Delete
-                    </button>
-                  </div>
-                  {/* <button className='btn  m-1 btn-warning'>
-                  Change Password
-                </button> */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        onClick={() => setId(u.id)}
-                        className='btn  m-1 btn-warning'
-                        variant='outline'>
-                        Change Password
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className='sm:max-w-[425px] bg-white '>
-                      <DialogHeader>
-                        <DialogTitle>Update Password</DialogTitle>
-                      </DialogHeader>
-                      <div className='grid gap-4 py-4'>
-                        <div className='grid grid-cols-4 items-center gap-4'>
-                          <Label htmlFor='name' className='text-right'>
-                            Password
-                          </Label>
-                          <Input
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            onFocus={() => setError(null)}
-                            id='password'
-                            placeholder='Enter new Password'
-                            className='col-span-3 input input-primary input-bordered'
-                          />
-                        </div>
-                        <div className='grid grid-cols-4 items-center gap-4'>
-                          <Label
-                            htmlFor='confirmPassword'
-                            className='text-right'>
-                            Confirm Password
-                          </Label>
-                          <input
-                            required
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            onFocus={() => setError(null)}
-                            id='confirmPassword'
-                            placeholder='Enter Confirm Password'
-                            className='col-span-3 input input-primary input-bordered'
-                          />
-                        </div>
-                        {error && (
-                          <div className='text-error text-center'>{error}</div>
-                        )}
-                      </div>
-                      <DialogFooter>
-                        <Button onClick={handleUpdatePassword} type='submit'>
-                          Save changes
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+            {/* Profile Image */}
+            <div className='absolute top-10 left-1/2 -translate-x-1/2'>
+              <div className='w-28 h-28 rounded-full overflow-hidden'>
+                <img
+                  src={
+                    u.user_type === "superadmin"
+                      ? superAdmin
+                      : u.user_type === "admin"
+                      ? admin
+                      : u.user_type === "account"
+                      ? account
+                      : verifier
+                  }
+                  alt='Super Admin'
+                  className='w-full h-full object-cover'
+                />
               </div>
+            </div>
+
+            {/* User Info */}
+            <div className='text-center mt-11'>
+              <p className='text-xl font-bold'>{u.first_name}</p>
+              <p>@{u.username}</p>
+              <p
+                className={` font-bold rounded-2xl px-2 text-center inline-block ${
+                  u.user_type === "superadmin"
+                    ? "bg-blue-100 text-blue-800"
+                    : u.user_type === "admin"
+                    ? " bg-orange-100 text-orange-800 "
+                    : u.user_type === "account"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-indigo-100 text-indigo-800"
+                }   `}>
+                {u.user_type}
+              </p>
+            </div>
+
+            {/* Buttons Section (Placed Properly) */}
+            <div className='absolute bottom-0 left-0 w-full flex'>
+              {/* Edit Button (75% width) */}
+              <button
+                onClick={() => {
+                  document.getElementById("my_modal_9").showModal();
+                  setId(u.id);
+                }}
+                className='w-3/4 py-2 font-bold bg-accent text-white rounded-bl-2xl transition-all duration-200 hover:bg-emerald-800 active:scale-95 flex items-center justify-center gap-2'>
+                <FaEdit /> Edit
+              </button>
+
+              {/* Delete Button (25% width) */}
+              <button
+                onClick={() => {
+                  document.getElementById("my_modal_3").showModal();
+                  setId(u.id);
+                }}
+                className='w-1/4 py-2 bg-red-500 text-white rounded-br-2xl transition-all duration-200 text-2xl hover:bg-red-600 active:scale-95 flex justify-center'>
+                <FaTrashCan />
+              </button>
             </div>
           </div>
         ))}
+      </div>
+
       <dialog id='my_modal_5' className='modal modal-bottom sm:modal-middle'>
         <div className='modal-box'>
           <form method='dialog'>
@@ -336,7 +212,11 @@ const ManageUser = () => {
                   {...register("confirm_password")}
                 />
               </div>
-              {error && <div className='text-error text-center'>{error}</div>}
+              {error && (
+                <div className='text-error font-medium bg-rose-100 py-2 rounded-md text-center'>
+                  {error}
+                </div>
+              )}
               <input
                 type='submit'
                 value={"Create User"}
@@ -379,6 +259,21 @@ const ManageUser = () => {
                 Delete
               </button>
             </form>
+          </div>
+        </div>
+      </dialog>
+      {/* You can open the modal using document.getElementById('ID').showModal() method */}
+
+      <dialog id='my_modal_9' className='modal'>
+        <div className='modal-box  '>
+          <form method='dialog'>
+            {/* if there is a button in form, it will close the modal */}
+            <button className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>
+              ✕
+            </button>
+          </form>
+          <div className='flex justify-center'>
+            <UserUpdate id={id} getUsers={getUsers}></UserUpdate>
           </div>
         </div>
       </dialog>
