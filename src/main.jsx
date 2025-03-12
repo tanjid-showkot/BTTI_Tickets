@@ -7,6 +7,7 @@ import { RouterProvider } from "react-router";
 import { registerSW } from "virtual:pwa-register";
 import { Context } from "./Context/Context.jsx";
 import "react-day-picker/style.css";
+import OnlineStatus from "./Components/OnlineStatus.jsx";
 
 const updateSW = registerSW({
   onNeedRefresh() {
@@ -18,6 +19,8 @@ const updateSW = registerSW({
 
 createRoot(document.getElementById("root")).render(
   <Context>
-    <RouterProvider router={webRouter} />
+    <OnlineStatus>
+      <RouterProvider router={webRouter} />
+    </OnlineStatus>
   </Context>
 );

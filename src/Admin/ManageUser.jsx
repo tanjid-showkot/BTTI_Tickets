@@ -78,9 +78,9 @@ const ManageUser = () => {
         {users.map((u) => (
           <div
             key={u.id}
-            className='bg-blue-50 h-[300px] w-[300px] m-5 rounded-2xl relative'>
+            className='bg-[#FDFBEE] h-[300px] w-[300px] m-5 rounded-2xl relative'>
             {/* Header Background */}
-            <div className='bg-cyan-100 w-full h-[110px] rounded-t-2xl'></div>
+            <div className='bg-[#57B4BA] w-full h-[110px] rounded-t-2xl'></div>
 
             {/* Profile Image */}
             <div className='absolute top-10 left-1/2 -translate-x-1/2'>
@@ -127,7 +127,7 @@ const ManageUser = () => {
                   document.getElementById("my_modal_9").showModal();
                   setId(u.id);
                 }}
-                className='w-3/4 py-2 font-bold bg-accent text-white rounded-bl-2xl transition-all duration-200 hover:bg-emerald-800 active:scale-95 flex items-center justify-center gap-2'>
+                className='w-3/4 py-2 font-bold bg-cyan-800 text-white rounded-bl-2xl transition-all duration-200 hover:bg-emerald-800 active:scale-95 flex items-center justify-center gap-2'>
                 <FaEdit /> Edit
               </button>
 

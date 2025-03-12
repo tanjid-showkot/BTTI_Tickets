@@ -20,11 +20,16 @@ import Verifier from "../Verifier/Verifier";
 import VProfile from "../Verifier/VProfile";
 import PendingList from "../Verifier/PendingList";
 import BulkRemove from "../Admin/BulkRemove";
+import NoInternet from "../Components/NoInternet";
 
 let webRouter = createBrowserRouter([
   {
     path: "/",
     element: <Login></Login>,
+  },
+  {
+    path: "/no-internet",
+    element: <NoInternet></NoInternet>,
   },
   {
     path: "/verifier",
