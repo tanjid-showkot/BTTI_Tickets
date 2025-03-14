@@ -139,6 +139,7 @@ const RefundApproval = () => {
                     <th>Ticket No</th>
                     <th>Sold By</th>
                     <th>Refunded By</th>
+                    <th>Refunded Cause</th>
                     <th>Amount</th>
                     <th>Action</th>
                   </tr>
@@ -164,6 +165,7 @@ const RefundApproval = () => {
                         {" "}
                         {approve.refund_verifier}{" "}
                       </td>
+                      <td className=' capitalize'> {approve.refund_reason} </td>
                       <td> {Number(approve.amount)} </td>
                       <td className=' flex justify-center items-center flex-row gap-2'>
                         <button

@@ -10,7 +10,7 @@ const VLayout = () => {
     <div>
       <VNavbar></VNavbar>
       <Outlet></Outlet>
-      <Footer />
+      {/* <Footer /> */}
       <BottomTabBar></BottomTabBar>
     </div>
   );

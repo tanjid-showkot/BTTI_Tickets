@@ -11,6 +11,11 @@ const Verifier = () => {
   const { token } = useContext(AuthContext);
   const [message, setMessage] = useState("");
   const [ticket, setTicket] = useState({});
+  const [other, setOther] = useState(false);
+  const [causeRefund, setCauseRefund] = useState("");
+  const [refundCauseOther, setRefundCauseOther] = useState("");
+  const [id, setId] = useState(null);
+  const [refundError, setRefundError] = useState("");
 
   const getTicket = async (id) => {
     const value = "FT-A" + id.id;
@@ -20,7 +25,6 @@ const Verifier = () => {
       await getVerifyTicket(token, value)
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           setTicket(data);
           reset();
         });
@@ -41,15 +45,41 @@ const Verifier = () => {
     try {
       await postUseTicket(token, value);
       setTicket({});
+      setMessage("This Ticket is now used.");
     } catch (error) {
       console.log(error.message);
     }
   };
-  const handleRefundTicket = async (data) => {
+  const handleRefundTicket = async () => {
+    if (!causeRefund) {
+      return setRefundError("রিফান্ডের কারন সিলেক্ট করুন।");
+    }
+    if (other && !refundCauseOther) {
+      return setRefundError("রিফান্ডের অন্যান্য কারন লিখুন।");
+    }
+    const value = {
+      id: id,
+      refund_reason: other ? refundCauseOther : causeRefund,
+    };
+    console.log(value);
     try {
-      await postRefundTicket(token, { id: data });
+      await postRefundTicket(token, value);
+      setMessage("Refund request successful");
+      document.getElementById("my_modal_3").close();
+      setTicket({});
     } catch (error) {
       console.log(error.message);
+    }
+  };
+  const handleCauseRefund = (e) => {
+    setRefundError("");
+    if (e === "other") {
+      setOther(true);
+      setCauseRefund(e);
+    } else {
+      setOther(false);
+      console.log(e);
+      setCauseRefund(e);
     }
   };
   return (
@@ -150,7 +180,10 @@ const Verifier = () => {
             }
  flex justify-center gap-4 mt-4`}>
             <button
-              onClick={() => handleRefundTicket(ticket.id)}
+              onClick={() => {
+                document.getElementById("my_modal_3").showModal();
+                setId(ticket.id);
+              }}
               className='btn btn-error'>
               Refund
             </button>
@@ -162,6 +195,59 @@ const Verifier = () => {
           </div>
         </div>
       )}
+      <dialog id='my_modal_3' className='modal'>
+        <div className='modal-box'>
+          <form method='dialog'>
+            {/* if there is a button in form, it will close the modal */}
+            <button
+              onClick={() => {
+                setRefundError("");
+                setCauseRefund("");
+              }}
+              className='btn btn-sm btn-circle btn-ghost absolute right-2 top-2'>
+              ✕
+            </button>
+          </form>
+          <h3 className='font-bold text-lg'>রিফান্ডের কারন</h3>
+          <fieldset className='fieldset'>
+            <select
+              value={causeRefund}
+              onChange={(e) => handleCauseRefund(e.target.value)}
+              defaultValue='রিফান্ডের কারন সিলেক্ট করুন'
+              className='select'>
+              <option value={""}>রিফান্ডের কারন সিলেক্ট করুন</option>
+              <option value={"লিখিত পরীক্ষায় ফেইল"}>লিখিত পরীক্ষায় ফেইল</option>
+              <option value={"ভাইভা পরীক্ষায় ফেইল"}>ভাইভা পরীক্ষায় ফেইল</option>
+              <option value={"other"}>অন্যান্য</option>
+            </select>
+            {other && (
+              <fieldset className='fieldset'>
+                <legend className='fieldset-legend'>অন্যান্য</legend>
+                <input
+                  type='text'
+                  value={refundCauseOther}
+                  onChange={(e) => setRefundCauseOther(e.target.value)}
+                  className='input'
+                  placeholder='অন্যান্য কারন লিখুন'
+                />
+              </fieldset>
+            )}
+            {refundError && (
+              <div className='text-error w-[320px] text-center bg-rose-100 py-2 rounded-lg my-2'>
+                {refundError}
+              </div>
+            )}
+            <button
+              onClick={() => {
+                handleRefundTicket();
+                setCauseRefund("");
+              }}
+              className='btn btn-primary w-[320px] mt-5'>
+              Refund
+            </button>
+          </fieldset>
+        </div>
+      </dialog>
     </div>
   );
 };
