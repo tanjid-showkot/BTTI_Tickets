@@ -8,7 +8,7 @@ import {
 } from "../Api/Api";
 import AuthContext from "../Context/Context";
 
-const SWIPE_THRESHOLD = 570;
+const SWIPE_THRESHOLD = 70;
 
 const Defer = () => {
   const { token } = useContext(AuthContext);
