@@ -73,7 +73,7 @@ const BulkRemove = () => {
     reset();
     if (Number(data.count) > Number(soldTicket.count)) {
       setError(
-        "You cannot enter a value greater than the total number of sold tickets."
+        "You cannot enter a value greater than the total number of sold tickets.",
       );
       return;
     }
@@ -100,15 +100,14 @@ const BulkRemove = () => {
           {showPicker && (
             <div
               ref={pickerRef}
-              className='absolute  top-full left-0  z-10 mt-2 bg-white shadow-lg border p-2'>
+              className='absolute  top-full left-0  z-10 mt-2 bg-white shadow-lg  '>
               <DayPicker
                 mode='single'
-                className='react-day-picker shadow-lg p-5  '
-                selected={date}
+                className='react-day-picker  '
                 onSelect={getSoldTicketCount}
                 classNames={{
-                  today: `fill-green-500 bg-green-500 rounded-full text-base text-white font-bold `,
-                  chevron: "w-6 h-6 fill-green-500", // Chevron (arrow) color
+                  today: `border-blue-500`, // Add a border to today's date
+                  selected: `bg-amber-500 border-amber-500 text-white`, // Highlight the selected day
                 }}
               />
             </div>

@@ -83,22 +83,24 @@ const Verifier = () => {
     }
   };
   return (
-    <div className='m-3'>
-      <fieldset className='fieldset w-full bg-blue-100 border  border-blue-100 p-4 rounded-box'>
-        <legend className='fieldset-legend text-lg '>Verify Ticket</legend>
+    <div className='m-3 p-2 md:p-4'>
+      <fieldset className='fieldset w-full rounded-3xl border border-sky-100 bg-white p-4 shadow-[0_18px_48px_-32px_rgba(37,99,235,0.35)]'>
+        <legend className='fieldset-legend text-lg font-bold text-slate-700'>
+          Verify Ticket
+        </legend>
         <form
-          className='w-full pb-4'
+          className='w-full pb-2'
           action=''
           onSubmit={handleSubmit(getTicket)}>
-          <div className='join w-full'>
+          <div className='join w-full overflow-hidden rounded-2xl border border-sky-100 bg-sky-50 p-1'>
             <input
               type='number'
               {...register("id")}
-              className='input join-item'
+              className='app-input join-item h-12 flex-1 border-0 bg-white shadow-none'
               placeholder='Ticket Number'
             />
             <input
-              className='btn bg-gradient-to-r text-lg font-bold from-[#01f1fe] to-[#4fadfe] w-[40%] join-item'
+              className='app-btn app-btn-primary join-item h-12 w-[40%] min-w-[120px] border-0'
               type='submit'
               value={"Verify"}
             />
@@ -106,31 +108,28 @@ const Verifier = () => {
         </form>
       </fieldset>
       {message && (
-        <div className=' mt-20 gap-3 mx-10 flex items-center justify-center font-bold text-2xl text-rose-600 p-4 bg-rose-100  rounded-2xl'>
-          <p className='text-center'>{message}</p>
+        <div className='mx-4 mt-8 flex items-center justify-center rounded-2xl border border-rose-200 bg-rose-50 p-4 text-center text-xl font-bold text-rose-600'>
+          <p>{message}</p>
         </div>
       )}
       {Object.keys(ticket).length > 0 && (
         <div>
           <div className='text-center'>
-            <div className=' mt-20 gap-3 mx-10 flex items-center justify-center font-bold text-2xl '>
-              {" "}
-              {/* <MdVerifiedUser /> */}
+            <div className='mx-4 mt-10 flex items-center justify-center text-2xl font-bold text-slate-700'>
               {ticket.used ? (
-                <span className='text-error'>
+                <span className='text-rose-600'>
                   This ticket has already been used.
                 </span>
               ) : ticket.refund_status === "not_refunded" ? (
-                <span className='text-success'>This is a valid ticket</span>
+                <span className='text-emerald-600'>This is a valid ticket</span>
               ) : (
                 <span>
                   You have already applied for a refund. Current status:{" "}
-                  <strong>{ticket.refund_status}</strong> .
+                  <strong>{ticket.refund_status}</strong>.
                 </span>
               )}
             </div>
-            <div
-              className={`bg-blue-100  mt-3 text-xl font-medium text-gray-700  py-5 px-12 w-[70%] mx-auto text-center rounded-4xl`}>
+            <div className='mx-auto mt-4 w-full max-w-2xl rounded-[2rem] border border-sky-100 bg-gradient-to-br from-sky-50 to-white p-6 text-xl font-medium text-slate-700 shadow-[0_22px_48px_-34px_rgba(37,99,235,0.4)]'>
               <p>
                 Type: <strong>{ticket.ticket_type}</strong>{" "}
               </p>
@@ -148,23 +147,24 @@ const Verifier = () => {
                 <strong>{moment(ticket.date).format("DD/MM/YYYY")}</strong>{" "}
               </p>
               <p>
-                Time: <strong>{moment(ticket.date).format("h:mm a")}</strong>{" "}
+                Time:{" "}
+                <strong>{moment(ticket.date).format("h:mm a")}</strong>{" "}
               </p>
               <p>
                 Sold By: <strong>{ticket.accountant}</strong>{" "}
               </p>
               {!ticket.used && ticket.refund_status !== "not_refunded" ? (
-                <p className='text-2xl'>
+                <p className='mt-2 text-2xl'>
                   Status:{" "}
-                  <strong className='font-bold text-error'>
+                  <strong className='font-bold text-rose-600'>
                     {ticket.refund_status}
                   </strong>
                 </p>
               ) : (
                 ticket.used && (
-                  <p>
+                  <p className='mt-2'>
                     Status:{" "}
-                    <strong className='font-bold text-error'>
+                    <strong className='font-bold text-rose-600'>
                       Already Used
                     </strong>
                   </p>
@@ -178,18 +178,18 @@ const Verifier = () => {
                 ? "hidden"
                 : ""
             }
- flex justify-center gap-4 mt-4`}>
+ flex justify-center gap-4 mt-6`}>
             <button
               onClick={() => {
                 document.getElementById("my_modal_3").showModal();
                 setId(ticket.id);
               }}
-              className='btn btn-error'>
+              className='app-btn app-btn-secondary'>
               Refund
             </button>
             <button
               onClick={() => handleUseTicket(ticket.id)}
-              className='btn btn-success px-8'>
+              className='app-btn app-btn-primary px-8'>
               Use
             </button>
           </div>

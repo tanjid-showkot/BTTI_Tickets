@@ -37,30 +37,41 @@ export function LoginForm({ className, ...props }) {
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className='border shadow-sm'>
-        <CardHeader>
-          <CardTitle className='text-2xl font-bold '>Login</CardTitle>
-          <CardDescription>
+      <Card className='soft-card border-0 p-1'>
+        <CardHeader className='rounded-t-2xl bg-sky-50 px-6 pb-4 pt-6'>
+          <CardTitle className='text-2xl font-bold text-slate-800'>
+            Login
+          </CardTitle>
+          <CardDescription className='text-sm text-slate-600'>
             Enter your username and password to login to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className='px-6 pb-6 pt-5'>
           <form onSubmit={handleSubmit(handleLogin)}>
-            <div className='flex flex-col gap-6'>
+            <div className='flex flex-col gap-5'>
               <div className='grid gap-2'>
-                <Label htmlFor='username'>Username</Label>
+                <Label
+                  htmlFor='username'
+                  className='text-sm font-semibold text-slate-700'>
+                  Username
+                </Label>
                 <Input
                   id='username'
                   type='text'
                   {...register("username")}
                   placeholder='Enter your username'
                   required
+                  className='app-input h-12'
                   onFocus={() => setError(null)}
                 />
               </div>
               <div className='grid gap-2'>
                 <div className='flex items-center'>
-                  <Label htmlFor='password'>Password</Label>
+                  <Label
+                    htmlFor='password'
+                    className='text-sm font-semibold text-slate-700'>
+                    Password
+                  </Label>
                 </div>
                 <Input
                   id='password'
@@ -68,18 +79,19 @@ export function LoginForm({ className, ...props }) {
                   placeholder='Enter your password'
                   required
                   {...register("password")}
+                  className='app-input h-12'
                   onFocus={() => setError(null)}
                 />
               </div>
               {error && (
-                <div className='text-error font-medium bg-rose-100 py-2 rounded-md text-center'>
+                <div className='rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-center text-sm font-medium text-rose-600'>
                   {error}
                 </div>
               )}
               <input
                 type='submit'
                 value={"Login"}
-                className=' w-full btn bg-gradient-to-r from-[#01f1fe] to-[#4fadfe] '
+                className='app-btn app-btn-primary w-full border-0 cursor-pointer'
               />
             </div>
           </form>

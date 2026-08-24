@@ -6,9 +6,11 @@ import Footer from "./Footer";
 
 const AdminLayout = () => {
   return (
-    <div>
+    <div className='min-h-screen flex flex-col'>
       <AdminNavbar></AdminNavbar>
-      <Outlet></Outlet>
+      <main className='flex-1'>
+        <Outlet></Outlet>
+      </main>
       <Footer></Footer>
     </div>
   );

@@ -5,6 +5,9 @@ import { DayPicker } from "react-day-picker";
 import { getSoldTicketRange, getUser } from "../Api/Api";
 import AuthContext from "../Context/Context";
 import { CSVLink } from "react-csv";
+import * as Select from "@radix-ui/react-select";
+import { CalendarDays, Check, ChevronDown } from "lucide-react";
+
 const Sales = () => {
   const [range, setRange] = useState({ from: "", to: "" });
   const [showPicker, setShowPicker] = useState(false);
@@ -43,13 +46,13 @@ const Sales = () => {
     setFilterTicket(
       soldTicketRange.filter((ticket) => {
         return (
-          (filters.refund_status === "" ||
-            ticket.refund_status !== "not_refunded") &&
-          (filters.used === "" || ticket.used === true) &&
-          (filters.accountant === "" ||
-            ticket.accountant === filters.accountant)
+          (filters.refund_status === ""
+            || ticket.refund_status !== "not_refunded")
+          && (filters.used === "" || ticket.used === true)
+          && (filters.accountant === ""
+            || ticket.accountant === filters.accountant)
         );
-      })
+      }),
     );
   };
 
@@ -62,12 +65,24 @@ const Sales = () => {
     if (!range.to) {
       footer = moment(range.from).format("LL");
     } else if (range.to) {
-      footer = `${moment(range.from).format("LL")}–${moment(range.to).format(
-        "LL"
-      )}`;
+      const sameDay =
+        new Date(range.from).setHours(0, 0, 0, 0)
+        === new Date(range.to).setHours(0, 0, 0, 0);
+
+      footer = sameDay
+        ? moment(range.from).format("LL")
+        : `${moment(range.from).format("LL")}–${moment(range.to).format("LL")}`;
     }
   }
   useEffect(() => {
+    const today = new Date();
+    const initialRange = {
+      from: new Date(today.setHours(0, 0, 0, 0)),
+      to: new Date(today.setHours(23, 59, 59, 999)),
+    };
+
+    setRange(initialRange);
+    getSoldTicket(initialRange);
     getUsers();
   }, []);
 
@@ -97,23 +112,31 @@ const Sales = () => {
   };
 
   const getSoldTicket = async (newRange) => {
-    setRange(newRange);
-    if (newRange) {
-      try {
-        await getSoldTicketRange(
-          token,
-          moment(newRange.from).format("YYYY-MM-DD"),
-          moment(newRange.to).format("YYYY-MM-DD")
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            setSoldTicketRange(data);
-            setShowPicker(false);
-            console.log(data);
-          });
-      } catch (error) {
-        console.log(error.message);
-      }
+    const safeRange = {
+      from: newRange?.from ?? "",
+      to: newRange?.to ?? "",
+    };
+
+    setRange(safeRange);
+
+    if (!safeRange.from || !safeRange.to) {
+      return;
+    }
+
+    try {
+      await getSoldTicketRange(
+        token,
+        moment(safeRange.from).format("YYYY-MM-DD"),
+        moment(safeRange.to).format("YYYY-MM-DD"),
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setSoldTicketRange(data);
+          setShowPicker(false);
+          console.log(data);
+        });
+    } catch (error) {
+      console.log(error.message);
     }
   };
   const handleReset = () => {
@@ -127,196 +150,229 @@ const Sales = () => {
   };
 
   return (
-    <div>
-      <div className='lg:flex w-full justify-between items-center mt-4'>
-        <h1 className=' text-2xl font-bold lg:w-[40%]  ms-4'>Sales Record</h1>
-        <div className='lg:flex justify-end lg:me-20 lg:w-[60%]   '>
-          <div className='relative my-4 flex justify-center lg:w-[50%] items-center   '>
-            {/* <div popover='auto' id='rdp-popover' className='dropdown'></div> */}
-            <CSVLink
-              data={filterTicket}
-              headers={headers}
-              filename={"my-file.csv"}
-              className={` ${
-                filterTicket.length < 1 && "hidden"
-              } btn btn-primary btn-outline`}
-              target='_blank'>
-              Download as CSV
-            </CSVLink>
-            <fieldset className='fieldset w-full mx-3 relative'>
-              {/* <legend className='fieldset-legend'>Select Date</legend> */}
-              <input
-                type='text'
-                readOnly
-                value={footer}
-                onClick={() => setShowPicker(!showPicker)}
-                placeholder='Select day range'
-                className='input min-w-full input-info '
-              />
-
-              {showPicker && (
-                <div
-                  ref={pickerRef}
-                  className='absolute top-full left-0  z-10 mt-2 bg-white shadow-lg border p-2'>
-                  <DayPicker
-                    mode='range'
-                    className='react-day-picker shadow-lg p-5  '
-                    selected={range}
-                    footer={footer}
-                    onSelect={getSoldTicket}
-                    classNames={{
-                      today: `fill-green-500 bg-green-500 rounded-full text-base text-white font-bold `,
-                      chevron: "w-6 h-6 fill-green-500", // Chevron (arrow) color
-                    }}
-                  />
-                </div>
-              )}
-            </fieldset>
-          </div>
-          <div className='flex justify-center  md:w-[50%] mx-auto items-center gap-4'>
-            <fieldset className='fieldset w-[52%] md:w-[50%]'>
-              {/* <legend className='fieldset-legend'>Accounts</legend> */}
-              <select
-                name='accountant'
-                value={filters.accountant}
-                onChange={handleFilterChange}
-                className='select select-primary  min-w-full '>
-                <option value=''>Select Account</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.username}>
-                    {account.username}
-                  </option>
-                ))}
-              </select>
-            </fieldset>
-            <div className='filter  md:w-[50%] '>
-              <input
-                onClick={handleReset}
-                className='btn filter-reset'
-                type='radio'
-                name='metaframeworks'
-                aria-label='All'
-              />
-              <input
-                className='btn'
-                type='radio'
-                name='refund_status'
-                aria-label='Refunded'
-                value='true'
-                checked={filters.refund_status === "true"}
-                onChange={handleFilterChange}
-              />
-              <input
-                className='btn'
-                type='radio'
-                name='used'
-                aria-label='Used'
-                value='true'
-                checked={filters.used === "true"}
-                onChange={handleFilterChange}
-              />
+    <div className='p-4 md:p-6'>
+      <div className='mx-auto max-w-7xl'>
+        <div className='mb-6 rounded-[1.5rem] border border-sky-100 bg-white/90 p-5 shadow-[0_24px_60px_-36px_rgba(37,99,235,0.35)]'>
+          <div className='flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between'>
+            <div>
+              <p className='text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-600'>
+                Reports
+              </p>
+              <h1 className='mt-2 text-3xl font-black text-slate-800'>
+                Sales Record
+              </h1>
             </div>
-            {/* <form className='filter w-[40%] '>
-              <input
-                onClick={handleReset}
-               
-                className='btn btn-square'
-                type='reset'
-                value='×'
-              />
-              <input
-                className='btn'
-                type='radio'
-                name='refund_status'
-                aria-label='Refunded'
-                value='true'
-                checked={filters.refund_status === "true"}
-                onChange={handleFilterChange}
-              />
-              <input
-                className='btn'
-                type='radio'
-                name='used'
-                aria-label='Used'
-                value='true'
-                checked={filters.used === "true"}
-                onChange={handleFilterChange}
-              />
-            </form> */}
-          </div>
-        </div>
-      </div>
-      <div>
-        <div
-          className={` ${
-            filterTicket < 1 && "hidden"
-          } flex md:flex-col mx-3 justify-between`}>
-          <p className=''>
-            Total count: <strong>{filterTicket.length}</strong>{" "}
-          </p>
-          <p>
-            Total Amount:{" "}
-            <strong>
-              {filterTicket.reduce(
-                (sum, d) => sum + (Number(d.amount) || 0),
-                0
-              )}
-            </strong>
-          </p>
-        </div>
-        <div className={`${filterTicket < 1 && "hidden"}`}>
-          <div className='overflow-x-auto'>
-            <table className='table table-xs'>
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Date</th>
-                  <th>Ticket Type</th>
-                  <th>Amount</th>
-                  <th>Ticket Serial</th>
-                  <th>Roll No</th>
-                  <th>Sold By</th>
-                  <th>Status</th>
-                  <th>Refunded By</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filterTicket.map((soldTicket, index) => (
-                  <tr className='m-4' key={soldTicket.id}>
-                    <th>{index + 1}</th>
-                    <td>{moment(soldTicket.date).format("YYYY-MM-DD")}</td>
-                    <td>{soldTicket.ticket_type}</td>
-                    <td>{Number(soldTicket.amount)}</td>
-                    <td>{soldTicket.ticket_serial}</td>
 
-                    {/* <td>{soldTicket.used ? "used" : "not Used"}</td> */}
-                    <td>{soldTicket.roll_number}</td>
-                    <td>{soldTicket.accountant}</td>
-                    <td>
-                      {!soldTicket.used && soldTicket.refund_status
-                        ? soldTicket.refund_status
-                        : "Used"}
-                    </td>
-                    <td>{soldTicket.refund_verifier}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th></th>
-                  <th>Date</th>
-                  <th>Ticket Type</th>
-                  <th>Amount</th>
-                  {/* <th>Status</th> */}
-                  <th>Ticket Serial</th>
-                  <th>Roll No</th>
-                  <th>Sold By</th>
-                  <th>Status</th>
-                  <th>Refunded By</th>
-                </tr>
-              </tfoot>
-            </table>
+            <div className='flex w-full flex-col gap-3 xl:max-w-3xl xl:flex-row xl:items-center xl:justify-end'>
+              <div className='relative min-w-[14rem] flex-1'>
+                <button
+                  type='button'
+                  onClick={() => setShowPicker(!showPicker)}
+                  className='flex w-full items-center gap-3 rounded-2xl border border-sky-100 bg-sky-50/80 px-3 py-2.5 text-left transition hover:border-sky-200 hover:bg-sky-50'>
+                  <CalendarDays className='h-4 w-4 text-sky-600' />
+                  <span className='flex-1 truncate text-sm font-medium text-slate-700'>
+                    {footer || "Select day range"}
+                  </span>
+                  <span className='rounded-full bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-700 ring-1 ring-sky-100'>
+                    Range
+                  </span>
+                </button>
+
+                {showPicker && (
+                  <div
+                    ref={pickerRef}
+                    className='absolute left-0 top-full z-20 mt-2 w-full min-w-[18rem] max-w-[22rem] rounded-[1.5rem] border border-sky-100 bg-white p-3 shadow-[0_24px_55px_-35px_rgba(37,99,235,0.4)]'>
+                    <DayPicker
+                      mode='range'
+                      className='react-day-picker rounded-xl p-2'
+                      selected={range}
+                      footer={footer}
+                      onSelect={getSoldTicket}
+                      resetOnSelect
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className='w-full xl:max-w-[15rem]'>
+                <Select.Root
+                  value={filters.accountant || "all"}
+                  onValueChange={(value) =>
+                    setFilters((prevFilters) => ({
+                      ...prevFilters,
+                      accountant: value === "all" ? "" : value,
+                    }))
+                  }>
+                  <Select.Trigger className='flex w-full items-center justify-between rounded-2xl border border-sky-100 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm outline-none transition hover:border-sky-200 focus:border-sky-300'>
+                    <Select.Value placeholder='Select Account' />
+                    <Select.Icon>
+                      <ChevronDown className='h-4 w-4 text-sky-600' />
+                    </Select.Icon>
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Content
+                      position='popper'
+                      sideOffset={8}
+                      className='z-50 rounded-2xl border border-sky-100 bg-white p-1 shadow-[0_20px_50px_-32px_rgba(37,99,235,0.45)]'>
+                      <Select.Viewport>
+                        <Select.Item
+                          value='all'
+                          className='flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-700 outline-none hover:bg-sky-50'>
+                          <Select.ItemText>All Accounts</Select.ItemText>
+                          {filters.accountant === "" && (
+                            <Check className='h-4 w-4 text-sky-600' />
+                          )}
+                        </Select.Item>
+                        {accounts.map((account) => (
+                          <Select.Item
+                            key={account.id}
+                            value={account.username}
+                            className='flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-700 outline-none hover:bg-sky-50'>
+                            <Select.ItemText>
+                              {account.username}
+                            </Select.ItemText>
+                            {filters.accountant === account.username && (
+                              <Check className='h-4 w-4 text-sky-600' />
+                            )}
+                          </Select.Item>
+                        ))}
+                      </Select.Viewport>
+                    </Select.Content>
+                  </Select.Portal>
+                </Select.Root>
+              </div>
+
+              <div className='flex items-center gap-2 rounded-2xl border border-sky-100 bg-sky-50/80 p-1'>
+                <button
+                  type='button'
+                  onClick={handleReset}
+                  className={`btn btn-sm rounded-xl ${filters.refund_status === "" && filters.used === "" ? "btn-primary" : "btn-outline text-slate-600"}`}>
+                  All
+                </button>
+                <button
+                  type='button'
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      refund_status: "true",
+                      used: "",
+                    }))
+                  }
+                  className={`btn btn-sm rounded-xl ${filters.refund_status === "true" ? "btn-primary" : "btn-outline text-slate-600"}`}>
+                  Refunded
+                </button>
+                <button
+                  type='button'
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      used: "true",
+                      refund_status: "",
+                    }))
+                  }
+                  className={`btn btn-sm rounded-xl ${filters.used === "true" ? "btn-primary" : "btn-outline text-slate-600"}`}>
+                  Used
+                </button>
+              </div>
+
+              {filterTicket.length > 0 && (
+                <CSVLink
+                  data={filterTicket}
+                  headers={headers}
+                  filename={"sales-record.csv"}
+                  className='btn btn-secondary btn-sm rounded-xl whitespace-nowrap'
+                  target='_blank'>
+                  Download CSV
+                </CSVLink>
+              )}
+            </div>
           </div>
+        </div>
+
+        <div className='rounded-[1.5rem] border border-sky-100 bg-white/90 p-4 shadow-[0_24px_60px_-36px_rgba(37,99,235,0.35)]'>
+          <div className='mb-4 flex flex-col gap-2 px-2 sm:flex-row sm:items-center sm:justify-between'>
+            <div className='text-sm text-slate-500'>
+              Total count:{" "}
+              <span className='font-bold text-slate-800'>
+                {filterTicket.length}
+              </span>
+            </div>
+            <div className='text-sm text-slate-500'>
+              Total Amount:{" "}
+              <span className='font-bold text-slate-800'>
+                {filterTicket.reduce(
+                  (sum, d) => sum + (Number(d.amount) || 0),
+                  0,
+                )}
+              </span>
+            </div>
+          </div>
+
+          {filterTicket.length > 0 ? (
+            <div className='overflow-x-auto rounded-2xl border border-sky-100'>
+              <table className='sales-table table table-sm w-full'>
+                <thead className='bg-sky-50 text-slate-700'>
+                  <tr>
+                    <th className='text-left'>#</th>
+                    <th className='text-left'>Date</th>
+                    <th className='text-left'>Ticket Type</th>
+                    <th className='text-left'>Amount</th>
+                    <th className='text-left'>Ticket Serial</th>
+                    <th className='text-left'>Roll No</th>
+                    <th className='text-left'>Sold By</th>
+                    <th className='text-left'>Status</th>
+                    <th className='text-left'>Refunded By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filterTicket.map((soldTicket, index) => (
+                    <tr key={soldTicket.id} className='sales-row'>
+                      <th className='font-medium text-slate-500'>
+                        {index + 1}
+                      </th>
+                      <td className='font-medium text-slate-700'>
+                        {moment(soldTicket.date).format("YYYY-MM-DD")}
+                      </td>
+                      <td className='text-slate-700'>
+                        {soldTicket.ticket_type}
+                      </td>
+                      <td className='font-semibold text-slate-800'>
+                        {Number(soldTicket.amount)}
+                      </td>
+                      <td className='text-slate-700'>
+                        {soldTicket.ticket_serial}
+                      </td>
+                      <td className='text-slate-700'>
+                        {soldTicket.roll_number}
+                      </td>
+                      <td className='text-slate-700'>
+                        {soldTicket.accountant}
+                      </td>
+                      <td>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                            !soldTicket.used && soldTicket.refund_status
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-emerald-100 text-emerald-700"
+                          }`}>
+                          {!soldTicket.used && soldTicket.refund_status
+                            ? soldTicket.refund_status
+                            : "Used"}
+                        </span>
+                      </td>
+                      <td className='text-slate-700'>
+                        {soldTicket.refund_verifier}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className='rounded-2xl border border-dashed border-sky-200 bg-sky-50/70 px-6 py-12 text-center text-sm text-slate-500'>
+              No sales records match the selected filters.
+            </div>
+          )}
         </div>
       </div>
     </div>

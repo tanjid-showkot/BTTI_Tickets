@@ -84,16 +84,16 @@ const ManageTicket = () => {
 
       setTickets((prev) =>
         prev.map((ticket) =>
-          ticket.id === id ? { ...ticket, status: updatedStatus } : ticket
-        )
+          ticket.id === id ? { ...ticket, status: updatedStatus } : ticket,
+        ),
       );
       await updateTicketStatus(token, id, { status: updatedStatus });
     } catch (error) {
       console.error("Error updating ticket status:", error);
       setTickets((prev) =>
         prev.map((ticket) =>
-          ticket.id === id ? { ...ticket, status: currentStatus } : ticket
-        )
+          ticket.id === id ? { ...ticket, status: currentStatus } : ticket,
+        ),
       );
     }
   };
@@ -144,12 +144,14 @@ const ManageTicket = () => {
     }
   };
   return (
-    <div>
-      <h1 className='text-3xl lg:text-3xl font-bold m-4 '>Manage Tickets</h1>
-      <div className='flex gap-4 justify-end me-4'>
+    <div className='p-4 md:p-6'>
+      <h1 className='m-4 text-3xl font-black text-slate-800 lg:text-3xl'>
+        Manage Tickets
+      </h1>
+      <div className='flex flex-wrap justify-end gap-3 me-4'>
         <button
           onClick={() => document.getElementById("my_modal_3").showModal()}
-          className='btn btn-primary  '>
+          className='app-btn app-btn-primary'>
           Create New Ticket
         </button>
         <button
@@ -158,30 +160,32 @@ const ManageTicket = () => {
             setSuccess("");
             document.getElementById("my_modal_5").showModal();
           }}
-          className='btn btn-info'>
+          className='app-btn app-btn-secondary'>
           Manage Receipt
         </button>
       </div>
       <div>
-        <h2 className='text-2xl font-bold m-4'>Active Tickets</h2>
+        <h2 className='m-4 text-2xl font-bold text-slate-800'>
+          Active Tickets
+        </h2>
       </div>
-      <div>
+      <div className='space-y-3 px-2 md:px-4'>
         {tickets.map((ticket) => (
           <div
             key={ticket.id}
-            className='flex justify-between m-4 border border-base-content/15 p-4'>
+            className='flex flex-col justify-between gap-4 rounded-[1.25rem] border border-sky-100 bg-white p-4 shadow-[0_18px_40px_-32px_rgba(37,99,235,0.4)] md:flex-row md:items-center'>
             <div>
-              <strong>Ticket Name </strong>
-              <p className='font-semibold'>{ticket.type}</p>
+              <strong className='text-slate-500'>Ticket Name </strong>
+              <p className='font-semibold text-slate-800'>{ticket.type}</p>
             </div>
             <div>
-              <strong>Price </strong>
-              <p className='font-semibold text-center '>
+              <strong className='text-slate-500'>Price </strong>
+              <p className='text-center font-semibold text-slate-800'>
                 {Number(ticket.amount)}
               </p>
             </div>
             <div className='flex flex-col items-center'>
-              <strong>Status </strong>
+              <strong className='text-slate-500'>Status </strong>
               <input
                 type='checkbox'
                 checked={ticket.status}
@@ -189,13 +193,13 @@ const ManageTicket = () => {
                 className='toggle border-error bg-error checked:bg-success checked:text-green-950 checked:border-success'
               />
             </div>
-            <div className='flex items-center  gap-2'>
+            <div className='flex items-center gap-2'>
               <button
                 onClick={() => {
                   setId(ticket.id);
                   document.getElementById("my_modal_4").showModal();
                 }}
-                className=' text-2xl btn btn-circle text-red-700 btn-ghost'>
+                className='btn btn-circle text-2xl text-red-700 btn-ghost'>
                 <FaTrashCan />
               </button>
             </div>

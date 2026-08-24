@@ -19,6 +19,8 @@ import VLayout from "../Verifier/VLayout";
 import Verifier from "../Verifier/Verifier";
 import VProfile from "../Verifier/VProfile";
 import PendingList from "../Verifier/PendingList";
+import Queue from "../Verifier/Queue";
+import Defer from "../Verifier/Defer";
 import BulkRemove from "../Admin/BulkRemove";
 import NoInternet from "../Components/NoInternet";
 
@@ -41,7 +43,7 @@ let webRouter = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Verifier></Verifier>,
+        element: <Defer></Defer>,
       },
       {
         path: "vProfile",
@@ -50,6 +52,14 @@ let webRouter = createBrowserRouter([
       {
         path: "vPendingList",
         element: <PendingList></PendingList>,
+      },
+      {
+        path: "queue",
+        element: <Queue></Queue>,
+      },
+      {
+        path: "defer",
+        element: <Defer></Defer>,
       },
     ],
   },

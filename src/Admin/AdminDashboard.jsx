@@ -34,7 +34,7 @@ const AdminDashboard = () => {
           setDashboard(data);
           console.log(data);
           const transformedData = Object.keys(
-            data.today_total_ticket_per_accounts
+            data.today_total_ticket_per_accounts,
           ).reduce((acc, key) => {
             acc[key] = {
               today_total_ticket_per_accounts:
@@ -53,105 +53,118 @@ const AdminDashboard = () => {
     }
   };
   return (
-    <div className='text-neutral-900 mb-32 '>
-      <div className='grid grid-cols-1 lg:grid-cols-4 gap-4 m-6'>
-        <div className='bg-blue-50 rounded p-5 pt-6'>
-          {/* <p className='text-center font-semibold text-lg'>Today</p> */}
-          <div className='grid grid-cols-2 gap-2 '>
+    <div className='mb-32 p-4 md:p-6'>
+      <div className='mb-6 flex items-center justify-between'>
+        <div>
+          <p className='text-sm font-medium uppercase tracking-[0.2em] text-blue-600'>
+            Overview
+          </p>
+          <h1 className='text-3xl font-black text-slate-800'>Dashboard</h1>
+        </div>
+      </div>
+      <div className='grid grid-cols-1 gap-4 lg:grid-cols-4'>
+        <div className='soft-card border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5'>
+          <div className='grid grid-cols-2 gap-2'>
             <div>
-              <p className='font-bold textarea-xl '>
+              <p className='text-2xl font-black text-slate-800'>
                 {dashboard.today_total_sold_ticket_count}
               </p>
-              <p className='font-semibold mt-2 text-zinc-500 '>Ticket Count</p>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
+                Ticket Count
+              </p>
             </div>
             <div>
-              <p className='font-bold textarea-xl  '>
+              <p className='text-2xl font-black text-slate-800'>
+                {" "}
                 {Number(dashboard.today_total_sold_ticket_amount)}
               </p>
-              <p className='font-semibold mt-2  text-zinc-500 '>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
                 Ticket Amount
               </p>
             </div>
           </div>
-          <div className='flex justify-between items-center mt-6 '>
-            <p className='font-bold text-neutral-500 text-lg'>Today</p>
+          <div className='mt-6 flex items-center justify-between'>
+            <p className='text-base font-bold text-slate-600'>Today</p>
             <p className='text-3xl text-blue-600'>
               <IoToday />
             </p>
           </div>
         </div>
 
-        <div className='bg-blue-50 rounded p-5 pt-6'>
-          {/* <p className='text-center font-semibold text-lg'>Today</p> */}
-          <div className='grid grid-cols-2 gap-2 '>
+        <div className='soft-card border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5'>
+          <div className='grid grid-cols-2 gap-2'>
             <div>
-              <p className='font-bold textarea-xl '>
+              <p className='text-2xl font-black text-slate-800'>
                 {dashboard.today_total_refund_ticket_count}
               </p>
-              <p className='font-semibold mt-2 text-zinc-500 '>Refund Count</p>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
+                Refund Count
+              </p>
             </div>
             <div>
-              <p className='font-bold textarea-xl  '>
+              <p className='text-2xl font-black text-slate-800'>
                 {Number(dashboard.today_total_refund_ticket_amount)}
               </p>
-              <p className='font-semibold mt-2  text-zinc-500 '>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
                 Refund Amount
               </p>
             </div>
           </div>
-          <div className='flex justify-between items-center mt-6 '>
-            <p className='font-bold text-neutral-500 text-lg'>Today</p>
+          <div className='mt-6 flex items-center justify-between'>
+            <p className='text-base font-bold text-slate-600'>Today</p>
             <p className='text-3xl text-blue-600'>
               <RiRefundFill />
             </p>
           </div>
         </div>
 
-        <div className='bg-blue-50 rounded p-5 pt-6'>
-          {/* <p className='text-center font-semibold text-lg'>Today</p> */}
-          <div className='grid grid-cols-2 gap-2 '>
+        <div className='soft-card border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5'>
+          <div className='grid grid-cols-2 gap-2'>
             <div>
-              <p className='font-bold textarea-xl '>
+              <p className='text-2xl font-black text-slate-800'>
                 {dashboard.monthly_total_ticket_count}
               </p>
-              <p className='font-semibold mt-2 text-zinc-500 '>Ticket Count</p>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
+                Ticket Count
+              </p>
             </div>
             <div>
-              <p className='font-bold textarea-xl  '>
+              <p className='text-2xl font-black text-slate-800'>
                 {Number(dashboard.monthly_total_ticket_amount)}
               </p>
-              <p className='font-semibold mt-2  text-zinc-500 '>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
                 Ticket Amount
               </p>
             </div>
           </div>
-          <div className='flex justify-between items-center mt-6 '>
-            <p className='font-bold text-neutral-500 text-lg'>Month</p>
+          <div className='mt-6 flex items-center justify-between'>
+            <p className='text-base font-bold text-slate-600'>Month</p>
             <p className='text-3xl text-blue-600'>
               <MdCalendarMonth />
             </p>
           </div>
         </div>
-        <div className='bg-blue-50 rounded p-5 pt-6'>
-          {/* <p className='text-center font-semibold text-lg'>Today</p> */}
-          <div className='grid grid-cols-2 gap-2 '>
+        <div className='soft-card border-blue-100 bg-gradient-to-br from-white to-blue-50 p-5'>
+          <div className='grid grid-cols-2 gap-2'>
             <div>
-              <p className='font-bold textarea-xl '>
+              <p className='text-2xl font-black text-slate-800'>
                 {dashboard.all_time_total_ticket_count}
               </p>
-              <p className='font-semibold mt-2 text-zinc-500 '>Ticket Count</p>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
+                Ticket Count
+              </p>
             </div>
             <div>
-              <p className='font-bold textarea-xl  '>
+              <p className='text-2xl font-black text-slate-800'>
                 {Number(dashboard.all_time_total_ticket_amount)}
               </p>
-              <p className='font-semibold mt-2  text-zinc-500 '>
+              <p className='mt-2 text-sm font-semibold text-slate-500'>
                 Ticket Amount
               </p>
             </div>
           </div>
-          <div className='flex justify-between items-center mt-6 '>
-            <p className='font-bold text-neutral-500 text-lg'>All Time</p>
+          <div className='mt-6 flex items-center justify-between'>
+            <p className='text-base font-bold text-slate-600'>All Time</p>
             <p className='text-3xl text-blue-600'>
               <FaSortAmountUp />
             </p>
@@ -159,37 +172,40 @@ const AdminDashboard = () => {
         </div>
       </div>
       {Object.entries(acc).map(([account, data]) => (
-        <div key={account} className='  mb-4 '>
-          <h3 className='ms-6 mb-3'>
-            Account: <strong className=' capitalize'>{account}</strong>{" "}
+        <div key={account} className='mt-8'>
+          <h3 className='mb-3 text-lg font-bold text-slate-700'>
+            Account: <span className='capitalize text-blue-600'>{account}</span>
           </h3>
-          <div className='grid grid-cols-1 lg:grid-cols-4 gap-4 ms-6  '>
+          <div className='grid grid-cols-1 gap-4 lg:grid-cols-4'>
             {Object.entries(data).map(([period, details]) => (
-              <div key={period} className='bg-blue-50 rounded p-5 pt-6'>
-                {/* <p className='text-center font-semibold text-lg'>Today</p> */}
-                <div className='grid grid-cols-2 gap-2 '>
+              <div
+                key={period}
+                className='soft-card border-sky-100 bg-white p-5'>
+                <div className='grid grid-cols-2 gap-2'>
                   <div>
-                    <p className='font-bold textarea-xl '>{details.count}</p>
-                    <p className='font-semibold mt-2 text-zinc-500 '>
+                    <p className='text-2xl font-black text-slate-800'>
+                      {details.count}
+                    </p>
+                    <p className='mt-2 text-sm font-semibold text-slate-500'>
                       Ticket Count
                     </p>
                   </div>
                   <div>
-                    <p className='font-bold textarea-xl  '>
+                    <p className='text-2xl font-black text-slate-800'>
                       {Number(details.amount)}
                     </p>
-                    <p className='font-semibold mt-2  text-zinc-500 '>
+                    <p className='mt-2 text-sm font-semibold text-slate-500'>
                       Ticket Amount
                     </p>
                   </div>
                 </div>
-                <div className='flex justify-between items-center mt-6 '>
-                  <p className='font-bold text-neutral-500 text-lg'>
+                <div className='mt-6 flex items-center justify-between'>
+                  <p className='text-base font-bold text-slate-600'>
                     {period === "today_total_ticket_per_accounts"
                       ? "Today"
                       : period === "monthly_total_ticket_per_accounts"
-                      ? "Monthly"
-                      : "All Time"}
+                        ? "Monthly"
+                        : "All Time"}
                   </p>
                   <p className='text-3xl text-blue-600'>
                     {period === "today_total_ticket_per_accounts" ? (

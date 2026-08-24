@@ -3,24 +3,31 @@
 import { FaHome, FaUser } from "react-icons/fa"; // Example icons
 import { Link, useLocation } from "react-router";
 import PropTypes from "prop-types";
-import { RiRefundFill } from "react-icons/ri";
+import { RiRefundFill, RiTimeLine } from "react-icons/ri";
+import { MdOutlineSwipe } from "react-icons/md";
 
 const BottomTabBar = () => {
   const location = useLocation();
 
   return (
-    <div className='fixed bottom-0 left-0 w-full bg-white shadow-lg p-2 border-t flex justify-around md:hidden'>
+    <div className='fixed bottom-0 left-0 z-40 flex w-full justify-around border-t border-sky-100 bg-white/95 p-2 shadow-[0_-18px_30px_-30px_rgba(37,99,235,0.42)] backdrop-blur-sm md:hidden'>
       <TabItem
         to='/verifier'
         icon={<FaHome />}
         label='Home'
         active={location.pathname === "/verifier"}
       />
-      <TabItem
+      {/* <TabItem
         to='/verifier/vPendingList'
         icon={<RiRefundFill />}
         label='Refunds'
         active={location.pathname === "/verifier/vPendingList"}
+      /> */}
+      <TabItem
+        to='/verifier/queue'
+        icon={<RiTimeLine />}
+        label='Queue'
+        active={location.pathname === "/verifier/queue"}
       />
       <TabItem
         to='/verifier/vProfile'
@@ -36,11 +43,11 @@ const TabItem = ({ to, icon, label, active }) => {
   return (
     <Link
       to={to}
-      className={`flex flex-col items-center  ${
-        active ? "text-blue-500" : "text-gray-600"
+      className={`flex min-w-[58px] flex-col items-center rounded-xl px-2 py-2 transition ${
+        active ? "bg-blue-50 text-blue-600" : "text-slate-500"
       }`}>
       <span className='text-xl'>{icon}</span>
-      <span className='text-xs'>{label}</span>
+      <span className='text-[10px] font-semibold'>{label}</span>
     </Link>
   );
 };

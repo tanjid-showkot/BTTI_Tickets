@@ -5,9 +5,11 @@ import AccountsNavbar from "./AccountsNavbar";
 
 const Layout = () => {
   return (
-    <div>
+    <div className='min-h-screen flex flex-col'>
       <AccountsNavbar></AccountsNavbar>
-      <Outlet></Outlet>
+      <main className='flex-1'>
+        <Outlet></Outlet>
+      </main>
     </div>
   );
 };

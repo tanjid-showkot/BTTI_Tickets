@@ -7,9 +7,11 @@ import Footer from "./Footer";
 
 const VLayout = () => {
   return (
-    <div>
+    <div className='min-h-screen flex flex-col'>
       <VNavbar></VNavbar>
-      <Outlet></Outlet>
+      <main className=''>
+        <Outlet></Outlet>
+      </main>
       <Footer />
       <BottomTabBar></BottomTabBar>
     </div>

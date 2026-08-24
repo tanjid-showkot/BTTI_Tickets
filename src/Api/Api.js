@@ -1,4 +1,5 @@
 const url = "https://brtc.pythonanywhere.com/api/"
+// const url = "http://127.0.0.1:8000/api/"
 function getErrorMessage(response) {
     const { status } = response;
 
@@ -407,6 +408,54 @@ export const postUseTicket = async (token, data) => {
                 Authorization: `Token ${token}`,
             },
             body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const getTodayVerifierQueue = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/today-sold-tickets/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const hideVerifierTicket = async (token, id) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/hide-ticket/?id=${id}`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const deferVerifierTicket = async (token, id) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/defer-ticket/?id=${id}`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
         });
         return handleResponse(response);
     } catch (error) {
