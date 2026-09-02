@@ -438,6 +438,48 @@ img {
   background: transparent !important;
 }
 
+.admin-workflow-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff !important;
+  color: var(--text-900) !important;
+}
+
+.admin-workflow-table thead th {
+  background: #f8fbff !important;
+  color: var(--text-700) !important;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #edf3ff;
+}
+
+.admin-workflow-table tbody tr {
+  background: #ffffff !important;
+  color: var(--text-900) !important;
+}
+
+.admin-workflow-table tbody tr:nth-child(even) {
+  background: #f8fbff !important;
+}
+
+.admin-workflow-table tbody td,
+.admin-workflow-table tbody th {
+  background: transparent !important;
+  color: var(--text-900) !important;
+  border-bottom: 1px solid #edf3ff;
+}
+
+.admin-workflow-table tbody tr:hover {
+  background: #f0f7ff !important;
+}
+
+.admin-workflow-table tbody tr:hover td,
+.admin-workflow-table tbody tr:hover th {
+  background: transparent !important;
+}
+
 .react-day-picker {
   --rdp-accent-color: #2563eb;
   --rdp-background-color: #ffffff;

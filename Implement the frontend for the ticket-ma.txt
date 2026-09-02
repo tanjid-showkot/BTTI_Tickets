@@ -1,0 +1,335 @@
+Implement the frontend for the ticket-management verifier/admin queue workflow against these backend APIs.
+
+Base behavior:
+- There are 4 fixed test centers: biometric, written, viva, practical.
+- A verifier is assigned exactly one test center and one counter by admin.
+- Verifier can only access the queue for the assigned center.
+- Queue stage is determined by the ticket.result object:
+  - biometric queue: biometric=false, written=false, viva=false, practical=false
+  - written queue: biometric=true, written=false
+  - viva queue: biometric=true, written=true, viva=false
+  - practical queue: biometric=true, written=true, viva=true, practical=false
+- When verifier clicks “Hide/Complete”, backend marks the current stage true and the ticket moves to the next stage.
+- Defer moves ticket(s) down by 10 positions inside the current center queue.
+
+Authentication:
+- All APIs use token auth header:
+  Authorization: Token <token>
+
+Key ticket response shape:
+{
+  "id": number,
+  "ticket_serial": string,
+  "serial": number | null,
+  "amount": string,
+  "ticket_type": string,
+  "sold_to": string | null,
+  "roll_number": string,
+  "date": string,
+  "used": boolean,
+  "refund_status": "not_refunded" | "pending" | "approved" | "rejected" | "refunded",
+  "accountant": string | null,
+  "license_type": string | null,
+  "refund_verifier": string | null,
+  "refund_reason": string | null,
+  "result": {
+    "biometric": boolean,
+    "written": boolean,
+    "viva": boolean,
+    "practical": boolean
+  }
+}
+
+1) Verify logged-in user
+GET /api/account/verify-token/
+
+Response:
+{
+  "user": {
+    "id": number,
+    "username": string,
+    "name": string,
+    "user_type": "admin" | "superadmin" | "account" | "verifier",
+    "assigned_test_center": {
+      "id": number,
+      "name": string,
+      "code": "biometric" | "written" | "viva" | "practical"
+    } | null,
+    "assigned_counter": {
+      "id": number,
+      "name": string,
+      "test_center_id": number
+    } | null
+  }
+}
+
+Frontend rules:
+- If user_type=verifier, route them only to their assigned center queue.
+- If assigned_test_center is null, show “No test center assigned”.
+- If assigned_counter is null, show “No counter assigned”.
+
+2) Admin: list test centers
+GET /api/ticket-management/test-centers/
+
+Response:
+[
+  {
+    "id": number,
+    "name": string,
+    "code": "biometric" | "written" | "viva" | "practical",
+    "order": number,
+    "is_active": boolean
+  }
+]
+
+3) Admin: list counters of a center
+GET /api/ticket-management/test-centers/{centerId}/counters/
+
+Response:
+[
+  {
+    "id": number,
+    "name": string,
+    "is_active": boolean,
+    "test_center": {
+      "id": number,
+      "name": string,
+      "code": string,
+      "order": number,
+      "is_active": boolean
+    }
+  }
+]
+
+4) Admin: create counter under a center
+POST /api/ticket-management/test-centers/{centerId}/counters/
+Body:
+{
+  "name": string
+}
+
+Response 201:
+{
+  "id": number,
+  "name": string,
+  "is_active": boolean,
+  "test_center": {
+    "id": number,
+    "name": string,
+    "code": string,
+    "order": number,
+    "is_active": boolean
+  }
+}
+
+5) Admin: assign test center to verifier
+PATCH /api/account/verifiers/{userId}/assign-test-center/
+Body:
+{
+  "test_center_id": number
+}
+
+Response 200:
+{
+  "message": "Verifier test center assigned successfully.",
+  "user": {
+    "id": number,
+    "username": string,
+    "first_name": string,
+    "user_type": "verifier",
+    "assigned_test_center": {
+      "id": number,
+      "name": string,
+      "code": string
+    } | null,
+    "assigned_counter": {
+      "id": number,
+      "name": string,
+      "test_center_id": number
+    } | null
+  }
+}
+
+6) Admin: assign counter to verifier
+PATCH /api/account/verifiers/{userId}/assign-counter/
+Body:
+{
+  "counter_id": number
+}
+
+Response 200:
+{
+  "message": "Verifier counter assigned successfully.",
+  "user": {
+    "id": number,
+    "username": string,
+    "first_name": string,
+    "user_type": "verifier",
+    "assigned_test_center": {
+      "id": number,
+      "name": string,
+      "code": string
+    } | null,
+    "assigned_counter": {
+      "id": number,
+      "name": string,
+      "test_center_id": number
+    } | null
+  }
+}
+
+Validation rule:
+- Counter must belong to the verifier’s assigned test center.
+
+7) Verifier: get today queue for assigned center
+GET /api/ticket-management/verifier/today-sold-tickets/{centerCode}/
+
+Example:
+GET /api/ticket-management/verifier/today-sold-tickets/biometric/
+
+Response 200:
+[
+  TicketResponse
+]
+
+Frontend rules:
+- Use assigned_test_center.code from verify-token
+- Do not let verifier switch to another center in UI
+- On 403, show access denied
+
+8) Admin: get today queue for any center
+GET /api/ticket-management/admin/today-sold-tickets/{centerCode}/
+
+Response 200:
+[
+  TicketResponse
+]
+
+9) Verifier: defer one ticket
+POST /api/ticket-management/verifier/defer-ticket/?id={ticketId}
+
+Body: empty
+
+Response 200:
+{
+  "message": "Ticket deferred successfully.",
+  "ticket": TicketResponse,
+  "new_position": number
+}
+
+Frontend behavior:
+- Optimistically update queue position or re-fetch queue after success
+
+10) Verifier: bulk defer by serial range
+POST /api/ticket-management/verifier/bulk-defer-ticket/
+Body:
+{
+  "start_serial": number,
+  "end_serial": number
+}
+
+Response 200:
+{
+  "message": "Tickets deferred successfully.",
+  "moved_ticket_ids": number[],
+  "new_start_position": number,
+  "tickets": TicketResponse[]
+}
+
+Frontend behavior:
+- Allow selecting a serial range
+- Re-fetch queue after success for consistency
+
+11) Verifier: complete current center stage (“hide” API)
+POST /api/ticket-management/verifier/hide-ticket/?id={ticketId}
+
+Body: empty
+
+Response 200:
+{
+  "message": "Ticket completed for verifier test center successfully.",
+  "ticket": TicketResponse
+}
+
+Frontend behavior:
+- Remove the ticket from the current queue after success
+- Re-fetch current queue
+- Do not treat this as delete; it means stage completed and moved to next center queue
+
+12) Admin: move ticket to any position in a center queue
+PATCH /api/ticket-management/admin/queue-move-ticket/?id={ticketId}
+Body:
+{
+  "center": "biometric" | "written" | "viva" | "practical",
+  "target_position": number
+}
+
+Response 200:
+{
+  "message": "Ticket moved successfully.",
+  "ticket": TicketResponse,
+  "new_position": number
+}
+
+Frontend behavior:
+- Admin queue screen should support manual reorder form
+- After success, re-fetch center queue
+
+13) Sell ticket API already returns result object
+POST /api/ticket-management/sell-tickets/
+Body:
+{
+  "ticket": number,
+  "sold_to": string,
+  "roll_number": string
+}
+
+Response 201:
+{
+  "id": number,
+  ...
+  "serial": number,
+  "result": {
+    "biometric": false,
+    "written": false,
+    "viva": false,
+    "practical": false
+  }
+}
+
+Frontend screens to build:
+1. Verifier Dashboard
+   - show assigned center
+   - show assigned counter
+   - show today queue for assigned center
+   - actions per row:
+     - Complete Stage
+     - Defer
+   - bulk defer range form:
+     - start_serial
+     - end_serial
+
+2. Admin Test Center Management
+   - list 4 centers
+   - open center details
+   - list counters
+   - create counter
+
+3. Admin Verifier Assignment
+   - list verifier users
+   - assign test center
+   - assign counter
+   - counter dropdown must be filtered by assigned center
+
+4. Admin Queue Control
+   - select center
+   - load queue
+   - move ticket to target position
+
+Error handling:
+- 400: show validation message from API
+- 403: show unauthorized/access denied
+- 404: show ticket not found in that center queue
+- After queue-changing operations, prefer re-fetching queue from backend to stay consistent
+
+Use the API exactly as defined above and do not infer additional fields or alternative routes.

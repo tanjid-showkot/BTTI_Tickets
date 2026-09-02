@@ -15,6 +15,9 @@ import ManageUser from "../Admin/ManageUser";
 import PrivateRoute from "./PrivateRoute";
 import SuperPrivateRoute from "./SuperPrivateRoute";
 import Sales from "../Admin/Sales";
+import TestCenterManagement from "../Admin/TestCenterManagement";
+import VerifierAssignment from "../Admin/VerifierAssignment";
+import AdminQueueControl from "../Admin/AdminQueueControl";
 import VLayout from "../Verifier/VLayout";
 import Verifier from "../Verifier/Verifier";
 import VProfile from "../Verifier/VProfile";
@@ -94,6 +97,18 @@ let webRouter = createBrowserRouter([
       {
         path: "tickets",
         element: <Sales></Sales>,
+      },
+      {
+        path: "testCenters",
+        element: <TestCenterManagement />,
+      },
+      {
+        path: "verifierAssignment",
+        element: <VerifierAssignment />,
+      },
+      {
+        path: "queueControl",
+        element: <AdminQueueControl />,
       },
       {
         path: "bulkDelete",

@@ -1,7 +1,22 @@
 const url = "https://brtc.pythonanywhere.com/api/"
 // const url = "http://127.0.0.1:8000/api/"
-function getErrorMessage(response) {
+async function getErrorMessage(response) {
     const { status } = response;
+    let errorData = null;
+
+    try {
+        errorData = await response.clone().json();
+    } catch {
+        errorData = null;
+    }
+
+    if (errorData) {
+        if (typeof errorData === "string") return errorData;
+        if (errorData.detail) return errorData.detail;
+        if (errorData.message) return errorData.message;
+        const firstError = Object.values(errorData).flat().find(Boolean);
+        if (firstError) return String(firstError);
+    }
 
     switch (status) {
         case 400:
@@ -21,11 +36,7 @@ function getErrorMessage(response) {
 
 const handleResponse = async (response) => {
     if (!response.ok) {
-        // const errorData = await response.json();
-        // const message = JSON.stringify(errorData);
-        // console.log(message);
-        // throw new Error(message);
-        const message = getErrorMessage(response);
+        const message = await getErrorMessage(response);
         throw new Error(message);
     }
     return response;
@@ -416,14 +427,234 @@ export const postUseTicket = async (token, data) => {
     }
 };
 
-export const getTodayVerifierQueue = async (token) => {
+export const getTodayVerifierQueue = async (token, centerCode) => {
     try {
-        const response = await fetch(`${url}ticket-management/verifier/today-sold-tickets/`, {
+        const response = await fetch(`${url}ticket-management/verifier/today-sold-tickets/${centerCode}/`, {
             method: "GET",
             headers: {
                 "content-type": "application/json",
                 Authorization: `Token ${token}`,
             },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const createQueueAnnouncement = async (token, ticketId) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/queue-announcements/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({ ticket_id: ticketId }),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const getLatestQueueAnnouncement = async (token, signal) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/queue-announcements/latest/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            cache: "no-store",
+            signal,
+        });
+        return handleResponse(response);
+    } catch (error) {
+        if (error.name !== "AbortError") {
+            console.error("API Error:", error.message);
+        }
+        throw error;
+    }
+};
+
+export const bulkDeferVerifierTicket = async (token, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/bulk-defer-ticket/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const getTestCenters = async (token) => {
+    try {
+        const response = await fetch(`${url}ticket-management/test-centers/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const getTestCenterCounters = async (token, centerId) => {
+    try {
+        const response = await fetch(`${url}ticket-management/test-centers/${centerId}/counters/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const createTestCenterCounter = async (token, centerId, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/test-centers/${centerId}/counters/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const deleteTestCenterCounter = async (token, centerId, counterId) => {
+    try {
+        const response = await fetch(`${url}ticket-management/test-centers/${centerId}/counters/${counterId}/`, {
+            method: "DELETE",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const assignVerifierTestCenter = async (token, userId, data) => {
+    try {
+        const response = await fetch(`${url}account/verifiers/${userId}/assign-test-center/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const revokeVerifierTestCenter = async (token, userId) => {
+    try {
+        const response = await fetch(`${url}account/verifiers/${userId}/assign-test-center/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({ test_center_id: null }),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const assignVerifierCounter = async (token, userId, data) => {
+    try {
+        const response = await fetch(`${url}account/verifiers/${userId}/assign-counter/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const revokeVerifierCounter = async (token, userId) => {
+    try {
+        const response = await fetch(`${url}account/verifiers/${userId}/assign-counter/`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({ counter_id: null }),
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const getTodayAdminQueue = async (token, centerCode) => {
+    try {
+        const response = await fetch(`${url}ticket-management/admin/today-sold-tickets/${centerCode}/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+        });
+        return handleResponse(response);
+    } catch (error) {
+        console.error("API Error:", error.message);
+        throw error;
+    }
+};
+
+export const moveAdminQueueTicket = async (token, id, data) => {
+    try {
+        const response = await fetch(`${url}ticket-management/admin/queue-move-ticket/?id=${id}`, {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify(data),
         });
         return handleResponse(response);
     } catch (error) {

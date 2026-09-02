@@ -1,6 +1,6 @@
 /** @format */
 
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useLocation, useNavigate } from "react-router";
 import logo from "/BRTC Logo.png";
 import React, { useContext } from "react";
 import AuthContext from "../Context/Context";
@@ -9,10 +9,19 @@ const AdminNavbar = () => {
   const { logOutUser, user } = useContext(AuthContext);
   console.log(user);
   const navigate = useNavigate();
+  const location = useLocation();
   const handleLogout = () => {
     logOutUser();
     navigate("/", { replace: true });
   };
+  const queueManagementLinks = [
+    { to: "/admin/testCenters", label: "Centers" },
+    { to: "/admin/verifierAssignment", label: "Assign" },
+    { to: "/admin/queueControl", label: "Queue Control" },
+  ];
+  const isQueueManagementActive = queueManagementLinks.some(
+    (item) => item.to === location.pathname,
+  );
   const menuItems = (
     <React.Fragment>
       <li>
@@ -34,7 +43,7 @@ const AdminNavbar = () => {
           Sales
         </NavLink>
       </li>
-      <li>
+      {/* <li>
         <NavLink
           to='/admin/refundApproval'
           className={({ isActive }) =>
@@ -42,7 +51,7 @@ const AdminNavbar = () => {
           }>
           Refund
         </NavLink>
-      </li>
+      </li> */}
       {user.user_type === "superadmin" && (
         <li>
           <NavLink
@@ -62,6 +71,33 @@ const AdminNavbar = () => {
           }>
           Tickets
         </NavLink>
+      </li>
+      <li>
+        <details>
+          <summary
+            className={
+              isQueueManagementActive
+                ? "nav-link-active px-3 py-2"
+                : "nav-link-base px-3 py-2"
+            }>
+            Queue Management
+          </summary>
+          <ul className='z-50 mt-2 w-52 rounded-2xl border border-sky-100 bg-white p-2 shadow-lg'>
+            {queueManagementLinks.map((item) => (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "nav-link-active px-3 py-2"
+                      : "nav-link-base px-3 py-2"
+                  }>
+                  {item.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </details>
       </li>
       {user.user_type === "superadmin" && (
         <li>
@@ -87,7 +123,7 @@ const AdminNavbar = () => {
   return (
     <div>
       <div className='navbar sticky top-0 z-40 border-b border-sky-100 bg-white/90 backdrop-blur-md shadow-[0_16px_35px_-30px_rgba(37,99,235,0.45)]'>
-        <div className='navbar-start w-[90%] lg:w-[50%]'>
+        <div className='navbar-start w-[90%] lg:w-[42%]'>
           <p className='font-black flex items-center gap-3 text-lg text-slate-800 lg:text-xl'>
             <span className='flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 ring-1 ring-blue-100'>
               <img src={logo} className='h-8 w-8 object-contain' alt='' />
