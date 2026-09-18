@@ -60,6 +60,17 @@ const VNavbar = () => {
                 Queue
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to='/verifier/master-queue'
+                className={({ isActive }) =>
+                  isActive
+                    ? "nav-link-active px-3 py-2"
+                    : "nav-link-base px-3 py-2"
+                }>
+                Master Queue
+              </NavLink>
+            </li>
 
             <li>
               <button

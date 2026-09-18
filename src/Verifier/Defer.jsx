@@ -6,6 +6,7 @@ import {
   createQueueAnnouncement,
   deferVerifierTicket,
   getTodayVerifierQueue,
+  getVerifierMasterQueue,
   hideVerifierTicket,
 } from "../Api/Api";
 import AuthContext from "../Context/Context";
@@ -123,17 +124,30 @@ const Defer = () => {
       return;
     }
 
-    const matchedTicket = tickets.find(
-      (ticket) => String(ticket.roll_number) === rollNumber,
-    );
+    try {
+      const response = await getVerifierMasterQueue(token);
+      const data = await response.json();
 
-    if (!matchedTicket) {
-      setError("No ticket found for this roll number.");
-      return;
+      const biometricTickets = Array.isArray(data?.biometric)
+        ? data.biometric
+        : [];
+      const writtenTickets = Array.isArray(data?.written) ? data.written : [];
+
+      const matchedTicket = [...biometricTickets, ...writtenTickets].find(
+        (ticket) => String(ticket.roll_number) === rollNumber,
+      );
+
+      if (!matchedTicket) {
+        setError("No ticket found for this roll number.");
+        return;
+      }
+
+      await runAction(matchedTicket.id, "hide");
+      setRollNumberInput("");
+    } catch (apiError) {
+      console.log(apiError);
+      setError(apiError.message || "Failed to load the master queue.");
     }
-
-    await runAction(matchedTicket.id, "hide");
-    setRollNumberInput("");
   };
 
   const handleNumpadPress = (value) => {

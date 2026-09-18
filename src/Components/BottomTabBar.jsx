@@ -1,10 +1,10 @@
 /** @format */
 
-import { FaHome, FaUser } from "react-icons/fa"; // Example icons
+import { FaHome, FaUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router";
 import PropTypes from "prop-types";
-import { RiRefundFill, RiTimeLine } from "react-icons/ri";
-import { MdOutlineSwipe } from "react-icons/md";
+import { RiTimeLine } from "react-icons/ri";
+import { LuLayoutGrid } from "react-icons/lu";
 
 const BottomTabBar = () => {
   const location = useLocation();
@@ -28,6 +28,12 @@ const BottomTabBar = () => {
         icon={<RiTimeLine />}
         label='Queue'
         active={location.pathname === "/verifier/queue"}
+      />
+      <TabItem
+        to='/verifier/master-queue'
+        icon={<LuLayoutGrid />}
+        label='Master'
+        active={location.pathname === "/verifier/master-queue"}
       />
       <TabItem
         to='/verifier/vProfile'

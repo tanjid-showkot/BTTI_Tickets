@@ -135,6 +135,22 @@ img {
   color: var(--blue-600);
 }
 
+@keyframes queue-page-enter {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.queue-page-enter {
+  animation: queue-page-enter 400ms ease-out;
+}
+
 .minimal-table thead th {
   background: #f8fbff;
   color: var(--text-100);

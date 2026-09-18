@@ -8,7 +8,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
     devOptions: {
-      enabled: true
+      enabled: false
+    },
+    workbox: {
+      cleanupOutdatedCaches: true,
+      clientsClaim: true,
+      skipWaiting: true
     },
     manifest: {
       "name": "BRTC E-Ticket",

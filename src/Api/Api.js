@@ -427,7 +427,7 @@ export const postUseTicket = async (token, data) => {
     }
 };
 
-export const getTodayVerifierQueue = async (token, centerCode) => {
+export const getTodayVerifierQueue = async (token, centerCode, signal) => {
     try {
         const response = await fetch(`${url}ticket-management/verifier/today-sold-tickets/${centerCode}/`, {
             method: "GET",
@@ -435,10 +435,32 @@ export const getTodayVerifierQueue = async (token, centerCode) => {
                 "content-type": "application/json",
                 Authorization: `Token ${token}`,
             },
+            signal,
         });
         return handleResponse(response);
     } catch (error) {
-        console.error("API Error:", error.message);
+        if (error.name !== "AbortError") {
+            console.error("API Error:", error.message);
+        }
+        throw error;
+    }
+};
+
+export const getVerifierMasterQueue = async (token, signal) => {
+    try {
+        const response = await fetch(`${url}ticket-management/verifier/master-queue/`, {
+            method: "GET",
+            headers: {
+                "content-type": "application/json",
+                Authorization: `Token ${token}`,
+            },
+            signal,
+        });
+        return handleResponse(response);
+    } catch (error) {
+        if (error.name !== "AbortError") {
+            console.error("API Error:", error.message);
+        }
         throw error;
     }
 };
@@ -730,4 +752,3 @@ export const bulkDeleteSoldTickets = async (token, data) => {
         throw error;
     }
 };
-

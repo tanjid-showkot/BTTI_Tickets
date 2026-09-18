@@ -1,16 +1,9 @@
 /** @format */
 
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import {
-  createQueueAnnouncement,
-  getLatestQueueAnnouncement,
-  getTodayVerifierQueue,
-} from "../Api/Api";
+import { getTodayVerifierQueue } from "../Api/Api";
 import AuthContext from "../Context/Context";
-import {
-  playQueueAnnouncement,
-  unlockQueueAudio,
-} from "../lib/queueAnnouncementAudio";
+import { createQueueAnnouncementPlayer } from "../lib/queueAnnouncementAudio";
 import { Volume2 } from "lucide-react";
 
 const getColumnsForWidth = (width) => {
@@ -34,20 +27,51 @@ const Queue = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [announcementError, setAnnouncementError] = useState("");
   const [audioError, setAudioError] = useState("");
-  const [audioBlocked, setAudioBlocked] = useState(false);
+  const [audioStatus, setAudioStatus] = useState("idle");
+  const [audioEnabling, setAudioEnabling] = useState(false);
   const [pageSize, setPageSize] = useState(() => getViewportPageSize());
   const [currentPage, setCurrentPage] = useState(0);
   const firstTicketIdRef = useRef(null);
   const queueInitializedRef = useRef(false);
-  const lastAnnouncementIdRef = useRef(null);
-  const announcementInitializedRef = useRef(false);
-  const announcementChainRef = useRef(Promise.resolve());
+  const audioPlayerRef = useRef(null);
   const centerCode = user?.assigned_test_center?.code;
+  const centerName = user?.assigned_test_center?.name;
+  const counterName = user?.assigned_counter?.name;
+
+  useEffect(() => {
+    if (!centerCode || !counterName) return undefined;
+
+    let disposed = false;
+    const player = createQueueAnnouncementPlayer({
+      onStateChange: (status) => {
+        if (!disposed) setAudioStatus(status);
+      },
+      onError: (playbackError) => {
+        if (!disposed) {
+          console.warn("Queue announcement failed:", playbackError);
+          setAudioError(
+            playbackError.message || "Queue announcement playback failed.",
+          );
+        }
+      },
+    });
+
+    audioPlayerRef.current = player;
+    setAudioError("");
+    player.initialize().catch(() => {});
+
+    return () => {
+      disposed = true;
+      if (audioPlayerRef.current === player) {
+        audioPlayerRef.current = null;
+      }
+      player.destroy();
+    };
+  }, [centerCode, counterName]);
 
   const loadQueue = useCallback(
-    async (silent = false) => {
+    async (silent = false, signal) => {
       if (!centerCode) {
         setTickets([]);
         setLoading(false);
@@ -59,8 +83,10 @@ const Queue = () => {
       }
       setError("");
       try {
-        const response = await getTodayVerifierQueue(token, centerCode);
+        const response = await getTodayVerifierQueue(token, centerCode, signal);
         const data = await response.json();
+        if (signal?.aborted) return;
+
         const nextTickets = Array.isArray(data) ? data : [];
         const firstTicket = nextTickets[0];
         const firstTicketId = firstTicket?.id ?? null;
@@ -68,132 +94,72 @@ const Queue = () => {
         if (!queueInitializedRef.current) {
           queueInitializedRef.current = true;
         } else if (firstTicket && firstTicketId !== firstTicketIdRef.current) {
-          createQueueAnnouncement(token, firstTicketId).catch((apiError) => {
-            setAnnouncementError(
-              apiError.message || "Failed to announce the current ticket.",
-            );
+          audioPlayerRef.current?.enqueue({
+            rollNumber: firstTicket.roll_number,
+            counterName,
           });
         }
 
         firstTicketIdRef.current = firstTicketId;
         setTickets(nextTickets);
       } catch (apiError) {
+        if (apiError.name === "AbortError") return;
+
         console.log(apiError);
         setError(apiError.message || "Failed to load verifier queue.");
       } finally {
-        if (!silent) {
+        if (!silent && !signal?.aborted) {
           setLoading(false);
         }
       }
     },
-    [centerCode, token],
+    [centerCode, counterName, token],
   );
 
   useEffect(() => {
     firstTicketIdRef.current = null;
     queueInitializedRef.current = false;
-  }, [centerCode]);
+  }, [centerCode, counterName]);
 
   useEffect(() => {
-    loadQueue();
-
-    const intervalId = setInterval(() => {
-      loadQueue(true);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [loadQueue]);
-
-  useEffect(() => {
-    if (!centerCode || !token || !user?.assigned_counter) return undefined;
-
     let timeoutId;
     let disposed = false;
     const controller = new AbortController();
 
-    lastAnnouncementIdRef.current = null;
-    announcementInitializedRef.current = false;
-    announcementChainRef.current = Promise.resolve();
-    setAnnouncementError("");
-    setAudioError("");
-    setAudioBlocked(false);
-
-    const pollLatestAnnouncement = async () => {
-      try {
-        const response = await getLatestQueueAnnouncement(
-          token,
-          controller.signal,
-        );
-        const data = await response.json();
-        const announcement = Object.prototype.hasOwnProperty.call(
-          data ?? {},
-          "announcement",
-        )
-          ? data.announcement
-          : data;
-        const announcementId = announcement?.id ?? null;
-
-        setAnnouncementError("");
-
-        if (!announcementInitializedRef.current) {
-          lastAnnouncementIdRef.current = announcementId;
-          announcementInitializedRef.current = true;
-        } else if (
-          announcementId !== null
-          && announcementId !== lastAnnouncementIdRef.current
-        ) {
-          lastAnnouncementIdRef.current = announcementId;
-          announcementChainRef.current = announcementChainRef.current
-            .then(() => playQueueAnnouncement(announcement, controller.signal))
-            .then(() => setAudioError(""))
-            .catch((playbackError) => {
-              if (playbackError.name === "AbortError") return;
-
-              if (playbackError.name === "NotAllowedError") {
-                setAudioBlocked(true);
-                setAudioError(
-                  "Browser audio is blocked. Enable announcements to hear future calls.",
-                );
-                return;
-              }
-
-              console.warn("Queue announcement failed:", playbackError);
-              setAudioError(
-                playbackError.message || "Queue announcement playback failed.",
-              );
-            });
-        }
-      } catch (apiError) {
-        if (apiError.name !== "AbortError") {
-          setAnnouncementError(
-            apiError.message || "Announcement service is unavailable.",
-          );
-        }
-      } finally {
-        if (!disposed) {
-          timeoutId = window.setTimeout(pollLatestAnnouncement, 1000);
-        }
+    const pollQueue = async (silent) => {
+      await loadQueue(silent, controller.signal);
+      if (!disposed) {
+        timeoutId = window.setTimeout(() => pollQueue(true), 1000);
       }
     };
 
-    pollLatestAnnouncement();
+    pollQueue(false);
 
     return () => {
       disposed = true;
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [centerCode, token, user?.assigned_counter]);
+  }, [loadQueue]);
 
   const handleEnableAudio = async () => {
+    const player = audioPlayerRef.current;
+    if (!player) return;
+
+    setAudioEnabling(true);
+    setAudioError("");
     try {
-      await unlockQueueAudio();
-      setAudioBlocked(false);
-      setAudioError("");
+      await player.unlock();
     } catch (playbackError) {
-      setAudioError(
-        playbackError.message || "The browser did not allow audio playback.",
-      );
+      if (audioPlayerRef.current === player) {
+        setAudioError(
+          playbackError.message || "The browser did not allow audio playback.",
+        );
+      }
+    } finally {
+      if (audioPlayerRef.current === player) {
+        setAudioEnabling(false);
+      }
     }
   };
 
@@ -226,6 +192,9 @@ const Queue = () => {
   const visibleTickets = tickets.slice(
     currentPage * pageSize,
     currentPage * pageSize + pageSize,
+  );
+  const showAudioControl = ["idle", "loading", "locked", "error"].includes(
+    audioStatus,
   );
 
   if (!user?.assigned_test_center) {
@@ -268,18 +237,30 @@ const Queue = () => {
 
   return (
     <div className='h-[calc(100vh-160px)] overflow-hidden p-4 md:p-6'>
-      {(announcementError || audioError) && (
+      <header className='mb-4 rounded-box border border-base-300 bg-base-200 text-center py-3 shadow-sm'>
+        <h1 className='text-xl font-bold text-base-content md:text-5xl'>
+          {centerName}
+        </h1>
+      </header>
+
+      {(showAudioControl || audioError) && (
         <div
           role='alert'
-          className={`alert alert-soft mb-3 ${audioBlocked ? "alert-warning" : "alert-error"}`}>
-          <span>{audioError || announcementError}</span>
-          {audioBlocked && (
+          className={`alert alert-soft mb-3 ${audioError ? "alert-error" : "alert-warning"}`}>
+          <span>
+            {audioError
+              || (audioStatus === "loading"
+                ? "Announcement audio is preparing. Enable it to allow playback."
+                : "Announcement audio needs permission to play.")}
+          </span>
+          {(showAudioControl || audioError) && (
             <button
               type='button'
               onClick={handleEnableAudio}
+              disabled={audioEnabling}
               className='btn btn-warning min-h-11 shrink-0'>
               <Volume2 className='h-5 w-5' aria-hidden='true' />
-              Enable announcements
+              {audioEnabling ? "Enabling..." : "Enable announcements"}
             </button>
           )}
         </div>
@@ -297,16 +278,31 @@ const Queue = () => {
             </div>
           )}
           <div className='grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
-            {visibleTickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                className='soft-card flex min-h-[84px] flex-col items-center justify-center border-sky-100 bg-white px-2 py-4 text-center'>
-                <p className='text-base font-black tracking-wide text-slate-800'>
-                  {ticket.roll_number}
-                </p>
-                <p className='text-base text-slate-800'>{ticket.serial}</p>
-              </div>
-            ))}
+            {visibleTickets.map((ticket, index) => {
+              const isCurrentRoll = currentPage === 0 && index === 0;
+
+              return (
+                <div
+                  key={ticket.id}
+                  className={`soft-card flex min-h-[84px] flex-col items-center justify-center text-center ${
+                    isCurrentRoll
+                      ? "border-2 border-primary bg-primary/30 ring-4 ring-primary/20"
+                      : "border-sky-100 bg-white"
+                  }`}>
+                  {isCurrentRoll && (
+                    <span className='badge badge-primary mb-1 font-bold'>
+                      Current Roll
+                    </span>
+                  )}
+                  <p
+                    className={`text-6xl font-black tracking-wide ${
+                      isCurrentRoll ? "text-primary" : "text-slate-800"
+                    }`}>
+                    {ticket.roll_number}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </>
       )}

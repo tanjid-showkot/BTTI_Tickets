@@ -10,10 +10,18 @@ import "react-day-picker/style.css";
 import OnlineStatus from "./Components/OnlineStatus.jsx";
 
 const updateSW = registerSW({
+  immediate: true,
   onNeedRefresh() {
-    if (confirm("New version available. Reload?")) {
-      updateSW();
-    }
+    updateSW(true);
+  },
+  onRegisteredSW(_swUrl, registration) {
+    if (!registration) return;
+
+    window.setInterval(() => {
+      if (navigator.onLine) {
+        registration.update();
+      }
+    }, 60 * 1000);
   },
 });
 

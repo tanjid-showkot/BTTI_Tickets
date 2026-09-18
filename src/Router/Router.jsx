@@ -24,6 +24,7 @@ import VProfile from "../Verifier/VProfile";
 import PendingList from "../Verifier/PendingList";
 import Queue from "../Verifier/Queue";
 import Defer from "../Verifier/Defer";
+import MasterQueue from "../Verifier/MasterQueue";
 import BulkRemove from "../Admin/BulkRemove";
 import NoInternet from "../Components/NoInternet";
 
@@ -59,6 +60,10 @@ let webRouter = createBrowserRouter([
       {
         path: "queue",
         element: <Queue></Queue>,
+      },
+      {
+        path: "master-queue",
+        element: <MasterQueue />,
       },
       {
         path: "defer",
