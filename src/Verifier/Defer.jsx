@@ -1,6 +1,6 @@
 /** @format */
 
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   bulkDeferVerifierTicket,
   createQueueAnnouncement,
@@ -12,6 +12,7 @@ import {
 import AuthContext from "../Context/Context";
 import PropTypes from "prop-types";
 import { RotateCcw, Volume2, X } from "lucide-react";
+import { createQueueAnnouncementPlayer } from "../lib/queueAnnouncementAudio";
 
 const Defer = () => {
   const { token, user } = useContext(AuthContext);
@@ -25,12 +26,39 @@ const Defer = () => {
   const [lastCalledTicketId, setLastCalledTicketId] = useState(null);
   const [range, setRange] = useState({ start_serial: "", end_serial: "" });
   const [rollNumberInput, setRollNumberInput] = useState("");
+  const audioPlayerRef = useRef(null);
 
   const assignedCenter = user?.assigned_test_center;
   const assignedCounter = user?.assigned_counter;
   const centerCode = assignedCenter?.code;
   const isWrittenCenter = assignedCenter?.name === "Written";
   const firstTicket = tickets[0];
+
+  useEffect(() => {
+    if (!centerCode || !assignedCounter?.name) return undefined;
+
+    let disposed = false;
+    const player = createQueueAnnouncementPlayer({
+      onError: (playbackError) => {
+        if (!disposed) {
+          setError(
+            playbackError.message || "Announcement audio playback failed.",
+          );
+        }
+      },
+    });
+
+    audioPlayerRef.current = player;
+    player.initialize().catch(() => {});
+
+    return () => {
+      disposed = true;
+      if (audioPlayerRef.current === player) {
+        audioPlayerRef.current = null;
+      }
+      player.destroy();
+    };
+  }, [assignedCounter?.name, centerCode]);
 
   const loadQueue = useCallback(
     async (silent = false) => {
@@ -170,17 +198,49 @@ const Defer = () => {
   const handleAnnouncement = async (isRepeat = false) => {
     if (!firstTicket || announcingTicketId !== null) return;
 
-    setAnnouncingTicketId(firstTicket.id);
+    const ticket = firstTicket;
+    const counterName = assignedCounter.name;
+    const player = audioPlayerRef.current;
+
+    if (!player) {
+      setError("Announcement audio is not ready. Please try again.");
+      return;
+    }
+
+    setAnnouncingTicketId(ticket.id);
     setError("");
     setMessage("");
 
     try {
-      await createQueueAnnouncement(token, firstTicket.id);
-      setLastCalledTicketId(firstTicket.id);
+      const [apiResult, audioResult] = await Promise.allSettled([
+        createQueueAnnouncement(token, ticket.id),
+        player.unlock(),
+      ]);
+
+      if (apiResult.status === "rejected") {
+        throw apiResult.reason;
+      }
+
+      setLastCalledTicketId(ticket.id);
+
+      if (audioResult.status === "rejected") {
+        setError(
+          audioResult.reason?.message ||
+            "Ticket was called, but audio playback failed.",
+        );
+        return;
+      }
+
+      if (audioPlayerRef.current !== player) return;
+
+      player.enqueue({
+        rollNumber: ticket.roll_number,
+        counterName,
+      });
       setMessage(
         isRepeat
-          ? `Announcement repeated for roll ${firstTicket.roll_number}.`
-          : `Roll ${firstTicket.roll_number} called to counter ${assignedCounter.name}.`,
+          ? `Announcement repeated for roll ${ticket.roll_number}.`
+          : `Roll ${ticket.roll_number} called to counter ${counterName}.`,
       );
     } catch (apiError) {
       console.log(apiError);
